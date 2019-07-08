@@ -7,7 +7,7 @@ from utils.types import (
 from utils.constants import DOMAIN_DEPOSIT
 
 
-def get_domain(domain_type: DomainType=DOMAIN_DEPOSIT, fork_version: Version=Version(bytes(4))) -> Domain:
+def get_domain(domain_type: DomainType=DomainType(DOMAIN_DEPOSIT), fork_version: Version=Version(bytes(4))) -> Domain:
     """
     Return the domain for a given fork
     """

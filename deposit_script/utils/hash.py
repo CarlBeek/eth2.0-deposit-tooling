@@ -1,12 +1,11 @@
 from hashlib import sha256
-from utils.types import Hash32
 from utils.constants import ENDIANNESS
 
 _hash_func = sha256  # Declared once to ensure future uses use correct version
 
 
-def hash(x) -> Hash32:
-    return Hash32(_hash_func(x).digest())
+def hash(x):
+    return _hash_func(x).digest()
 
 
 def int_to_int_hash(x: int, num_bytes: int) -> int:
