@@ -7,17 +7,17 @@ from typing import (
     NewType,
     List,
 )
-from py_ecc.bls.api import privtopub
 from dataclasses import dataclass
 
 
 BLSPubkey = NewType('BLSPubkey', bytes)
-BLSSignature = NewType("BLSSignature", bytes)
-Bytes32 = NewType("Bytes32", bytes)
-Domain = NewType("Domain", bytes)
-DomainType = NewType("DomainType", bytes)
-Gwei = NewType("Gwei", int)
-Version = NewType("Version", bytes)
+BLSPrivkey = NewType('BLSPrivkey', int)
+BLSSignature = NewType('BLSSignature', bytes)
+Bytes32 = NewType('Bytes32', bytes)
+Domain = NewType('Domain', bytes)
+DomainType = NewType('DomainType', bytes)
+Gwei = ('Gwei', int)
+Version = NewType('Version', bytes)
 
 
 def pack_bytes(b: bytes, num_bytes: int) -> List[bytes]:
@@ -25,14 +25,6 @@ def pack_bytes(b: bytes, num_bytes: int) -> List[bytes]:
     if len(b) <= 32:
         return [Bytes32(b + ZERO_BYTES32[32 - len(b):])]
     return [b[:32]] + pack_bytes(b, num_bytes - 32)
-
-
-@dataclass
-class KeyPair:
-    privkey: int
-
-    def __post_init__(self):
-        self.pubkey = BLSPubkey(privtopub(self.privkey))
 
 
 @dataclass
