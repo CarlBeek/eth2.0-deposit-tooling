@@ -17,6 +17,8 @@ from utils.hash import (
     hash_func_bytes,
     num_bits_to_num_bytes,
 )
+from utils.constants import ENDIANNESS
+from bls_signers.abstract_signer import BLSSigner
 
 
 def derive_privkey(parent_privkey: BLSPrivkey) -> BLSPrivkey:
@@ -25,32 +27,32 @@ def derive_privkey(parent_privkey: BLSPrivkey) -> BLSPrivkey:
     num_bytes = num_bits_to_num_bytes(curve_order.bit_length())
     assert hash_func_bytes >= num_bytes  # Sanity check that the hash func generates sufficient entropy
     while True:
-        key = int_to_int_hash(parent_privkey, num_bytes)
-        if key > curve_order:
+        key = BLSPrivkey(int_to_int_hash(int(parent_privkey), num_bytes))
+        if key > BLSPrivkey(curve_order):
             parent_privkey = key
             continue
         return key
 
 
-class BLSSigner:
-    def __init__(self, privkey: BLSPrivkey):
-        self.privkey = privkey
-        self.pubkey = BLSPubkey(privtopub(self.privkey))
+class PythonSigner(BLSSigner):
+    privkey = BLSPrivkey(1)
 
     def sign(self, message_hash: Bytes32, domain: Domain) -> BLSSignature:
-        return sign(message_hash, self.privkey, domain)
+        return sign(message_hash, self.privkey, int.from_bytes(domain, ENDIANNESS))
+
+    @property
+    def pubkey(self) -> BLSPubkey:
+        return privtopub(self.privkey)
 
 
-class WithdrawalCredentials(BLSSigner):
+class WithdrawalCredentials(PythonSigner):
     def __init__(self):
-        privkey = randbelow(curve_order)
-        super().__init__(privkey)
+        self.privkey = randbelow(curve_order)
 
 
-class SigningCredentials(BLSSigner):
+class SigningCredentials(PythonSigner):
     def __init__(self, withdrawal_credentials: WithdrawalCredentials):
-        privkey = derive_privkey(withdrawal_credentials.privkey)
-        super().__init__(privkey)
+        self.privkey = derive_privkey(withdrawal_credentials.privkey)
 
 
 def generate_key_pairs() -> Tuple[WithdrawalCredentials, SigningCredentials]:
