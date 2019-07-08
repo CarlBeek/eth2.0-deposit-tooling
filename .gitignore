@@ -1,8 +1,8 @@
 # Eth2 specs:
 eth2.0-specs/
 
+# Python testing & linting:
 venv/
-
-# Python testing:
 .pytest_cache
 .hypothesis
+.mypy_cache

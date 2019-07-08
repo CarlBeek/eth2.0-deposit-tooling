@@ -13,3 +13,8 @@ test_python:
 	python -m pytest
 
 test: test_python
+
+lint:
+	cd $(PY_DEPOSIT_DIR); . venv/bin/activate; \
+	flake8 --max-line-length=120 --exclude venv . \
+	&& mypy ./
