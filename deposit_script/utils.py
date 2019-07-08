@@ -22,7 +22,7 @@ def num_bits_to_num_bytes(x: int) -> int:
 hash_func_bytes = _hash_func().digest_size
 
 
-@dataclass(frozen=True)
+@dataclass
 class KeyPair:
     privkey: int
 

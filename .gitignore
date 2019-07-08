@@ -1,0 +1,8 @@
+# Eth2 specs:
+eth2.0-specs/
+
+venv/
+
+# Python testing:
+.pytest_cache
+.hypothesis
