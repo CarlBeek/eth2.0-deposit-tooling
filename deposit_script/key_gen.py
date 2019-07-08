@@ -1,12 +1,12 @@
 from py_ecc.optimized_bls12_381.optimized_curve import curve_order
 from secrets import randbelow
 from typing import Tuple
-from utils import (
+from utils.hash import (
     int_to_int_hash,
     num_bits_to_num_bytes,
     hash_func_bytes,
-    KeyPair,
 )
+from utils.types import KeyPair
 
 
 def generate_withdrawal_keys() -> KeyPair:
@@ -14,7 +14,7 @@ def generate_withdrawal_keys() -> KeyPair:
 
 
 def derive_signing_keys(withdrawal_keys: KeyPair) -> KeyPair:
-    # TODO: Consider replacing with BIP32 key derivation
+    # TODO: Consider replacing with BIP32-style key derivation
     withdrawal_key = withdrawal_keys.privkey
     num_bytes = num_bits_to_num_bytes(curve_order.bit_length())
     assert hash_func_bytes >= num_bytes  # Sanity check that the hash func generates sufficient entropy

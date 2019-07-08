@@ -1,7 +1,7 @@
 from py_ecc.optimized_bls12_381.optimized_curve import curve_order
 from py_ecc.bls.api import privtopub
 
-from utils import KeyPair
+from utils.types import KeyPair
 from key_gen import (
     generate_withdrawal_keys,
     derive_signing_keys,
