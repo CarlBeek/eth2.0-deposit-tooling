@@ -1,10 +1,18 @@
 # Eth2.0 Deposit Tooling
 
-This is a placeholder `README/md` while this project is being built out
+This is a placeholder `README.md` while this project is being built out, it is more a record of the author's thoughts than anything else.
 
 ## Python
 
 Designed for 🐳 and 🦄 who want high-degree of security. 100% offline, intended to be run on air-gapped PC.
+
+### Dependencies
+
+Trying to keep to the bare minimum for auditability
+
+- py_ecc
+- No SSZ? (Can get away without it)
+- RLP
 
 ### Eth1 (ECDSA) Signing & Tx Processing
 
@@ -26,14 +34,6 @@ Designed for 🐳 and 🦄 who want high-degree of security. 100% offline, inten
     - Need to get more onboarding for BLS12-381 standard
     - Ledger
     - Trezor
-
-### Dependencies
-
-Trying to keep minimal for Auditability
-
-- py_ecc
-- No SSZ? (Can get away without it)
-- RLP
 
 ## Static Webpage
 
