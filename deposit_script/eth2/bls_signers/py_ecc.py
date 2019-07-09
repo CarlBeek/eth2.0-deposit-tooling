@@ -22,7 +22,7 @@ from eth2.bls_signers.abstract_signer import BLSSigner
 
 
 def derive_privkey(parent_privkey: BLSPrivkey) -> BLSPrivkey:
-    # TODO: Consider replacing with BIP32-style key derivation
+    # TODO: Consider replacing with BIP44-style key derivation
     parent_privkey = parent_privkey
     num_bytes = num_bits_to_num_bytes(curve_order.bit_length())
     assert hash_func_bytes >= num_bytes  # Sanity check that the hash func generates sufficient entropy
@@ -38,11 +38,11 @@ class PythonSigner(BLSSigner):
     privkey = BLSPrivkey(1)  # Placeholder (overwritten by child classes)
 
     def sign(self, message_hash: Bytes32, domain: Domain) -> BLSSignature:
-        return sign(message_hash, self.privkey, int.from_bytes(domain, ENDIANNESS))
+        return BLSSignature(sign(message_hash, self.privkey, int.from_bytes(domain, ENDIANNESS)))
 
     @property
     def pubkey(self) -> BLSPubkey:
-        return privtopub(self.privkey)
+        return BLSPubkey(privtopub(self.privkey))
 
 
 class WithdrawalCredentials(PythonSigner):
