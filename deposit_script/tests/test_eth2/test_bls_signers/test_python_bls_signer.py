@@ -1,6 +1,6 @@
 from py_ecc.optimized_bls12_381.optimized_curve import curve_order
 from py_ecc.bls.api import privtopub
-from bls_signers.python import (
+from eth2.bls_signers.python import (
     WithdrawalCredentials,
     SigningCredentials,
     derive_privkey,

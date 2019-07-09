@@ -13,7 +13,7 @@ from utils.types import (
     Gwei,
     Version,
 )
-from bls_signers.abstract_signer import BLSSigner
+from eth2.bls_signers.abstract_signer import BLSSigner
 from typing import List
 from dataclasses import dataclass
 

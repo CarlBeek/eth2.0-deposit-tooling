@@ -6,6 +6,9 @@ clean:
 	rm -rf eth2.0-specs/
 	rm -rf $(PY_DEPOSIT_DIR)/venv
 	rm -rf $(PY_DEPOSIT_DIR)/spec.py
+	find . -name __pycache__ -exec rm -rf {} \;
+	find . -name .mypy_cache -exec rm -rf {} \;
+	find . -name .pytest_cache -exec rm -rf {} \;
 
 install_test:
 	cd $(PY_DEPOSIT_DIR);  python3 -m venv venv; . venv/bin/activate; pip3 install -r requirements.txt

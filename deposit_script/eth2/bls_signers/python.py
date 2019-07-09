@@ -18,7 +18,7 @@ from utils.hash import (
     num_bits_to_num_bytes,
 )
 from utils.constants import ENDIANNESS
-from bls_signers.abstract_signer import BLSSigner
+from eth2.bls_signers.abstract_signer import BLSSigner
 
 
 def derive_privkey(parent_privkey: BLSPrivkey) -> BLSPrivkey:
@@ -35,7 +35,7 @@ def derive_privkey(parent_privkey: BLSPrivkey) -> BLSPrivkey:
 
 
 class PythonSigner(BLSSigner):
-    privkey = BLSPrivkey(1)
+    privkey = BLSPrivkey(1)  # Placeholder (overwritten by child classes)
 
     def sign(self, message_hash: Bytes32, domain: Domain) -> BLSSignature:
         return sign(message_hash, self.privkey, int.from_bytes(domain, ENDIANNESS))
