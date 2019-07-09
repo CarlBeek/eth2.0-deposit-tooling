@@ -1,6 +1,6 @@
 py_ecc >= 1.7.0
 dataclasses == 0.6
-web2 >= 4.9.0
+rlp >= 1.1.0
 
 # Testing
 pytest>=4.4
