@@ -1,6 +1,7 @@
 from typing import (
     NewType,
     Dict,
+    Union,
 )
 import rlp
 from rlp.sedes import (
@@ -24,7 +25,6 @@ Wei = NewType('Wei', int)
 # ####  Eth1.X Types  ####
 Address = NewType('Address', str)
 ECDSASignature = NewType('ECDSASignature', Dict[str, int])  # {'v':0, 'r':1, 's':2}
-SerializedTransaction = NewType('SerializedTransaction', bytes)
 TxData = NewType('TxData', bytes)
 
 # ####  RLP Serializable Objects  ####
@@ -35,7 +35,7 @@ class SignedTransaction(rlp.Serializable):
     fields = (
         ('nonce', big_endian_int),
         ('gas_price', big_endian_int),
-        ('gas', big_endian_int),
+        ('gas_limit', big_endian_int),
         ('to', address),
         ('value', big_endian_int),
         ('data', binary),
@@ -49,7 +49,7 @@ class UnsignedTransaction(rlp.Serializable):
     fields = (
         ('nonce', big_endian_int),
         ('gas_price', big_endian_int),
-        ('gas', big_endian_int),
+        ('gas_limit', big_endian_int),
         ('to', address),
         ('value', big_endian_int),
         ('data', binary),
@@ -57,3 +57,6 @@ class UnsignedTransaction(rlp.Serializable):
 
     def as_signed_transaction(self, signature: ECDSASignature) -> SignedTransaction:
         return SignedTransaction(**self.as_dict(), **signature)
+
+
+Transaction = Union[SignedTransaction, UnsignedTransaction]
