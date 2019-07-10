@@ -5,7 +5,7 @@ from py_ecc.bls.api import (
 )
 from secrets import randbelow
 from typing import Tuple
-from utils.types import (
+from utils.typing import (
     BLSPubkey,
     BLSPrivkey,
     BLSSignature,

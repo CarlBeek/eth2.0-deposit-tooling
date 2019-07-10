@@ -1,6 +1,6 @@
 from web3 import Web3
 from .abstract_account import Account
-from utils.types import (
+from utils.typing import (
     Gwei,
     Nonce,
     Transaction,

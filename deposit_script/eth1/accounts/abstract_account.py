@@ -1,5 +1,5 @@
 import abc
-from utils.types import (
+from utils.typing import (
     Gwei,
     Nonce,
     Transaction,

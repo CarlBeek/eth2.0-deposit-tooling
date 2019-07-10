@@ -5,7 +5,7 @@ from utils.constants import (
 )
 from utils.merkle_minimal import get_merkle_root
 from utils.bls import get_domain
-from utils.types import (
+from utils.typing import (
     BLSPubkey,
     BLSSignature,
     Bytes32,

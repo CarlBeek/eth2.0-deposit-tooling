@@ -2,7 +2,7 @@ from py_ecc.bls.api import (
     verify,
     sign,
 )
-from utils.types import (
+from utils.typing import (
     BLSPubkey,
     BLSSignature,
     Bytes32,

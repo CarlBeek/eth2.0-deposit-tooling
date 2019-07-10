@@ -1,5 +1,5 @@
 from .abstract_broadcaster import TxBroadcaster
-from utils.types import (
+from utils.typing import (
     Transaction
 )
 
