@@ -56,6 +56,6 @@ class SigningCredentials(PythonSigner):
 
 
 def generate_key_pairs() -> Tuple[WithdrawalCredentials, SigningCredentials]:
-    withdrawal_creds = WithdrawalCredentials()
-    signing_creds = SigningCredentials(withdrawal_creds)
-    return withdrawal_creds, signing_creds
+    withdrawal_credentials = WithdrawalCredentials()
+    signing_credentials = SigningCredentials(withdrawal_credentials)
+    return withdrawal_credentials, signing_credentials
