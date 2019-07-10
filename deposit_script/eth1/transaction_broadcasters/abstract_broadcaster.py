@@ -4,6 +4,7 @@ from utils.types import (
     Transaction,
 )
 
+
 class TxBroadcaster(metaclass=abc.ABCMeta):
     @staticmethod
     def serialize_tx(tx: Transaction) -> SerializedTransaction:

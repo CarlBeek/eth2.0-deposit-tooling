@@ -5,6 +5,7 @@ from utils.types import (
     Transaction,
 )
 
+
 class Account(metaclass=abc.ABCMeta):
     online = False
 

@@ -1,6 +1,14 @@
-from typing import NewType
+from typing import (
+    NewType,
+    Dict,
+)
+import rlp
+from rlp.sedes import (
+    big_endian_int,
+    binary,
+)
 
-####  Eth2.0 Types  ####
+# ####  Eth2.0 Types  ####
 BLSPubkey = NewType('BLSPubkey', bytes)
 BLSPrivkey = NewType('BLSPrivkey', int)
 BLSSignature = NewType('BLSSignature', bytes)
@@ -13,8 +21,39 @@ Version = NewType('Version', bytes)
 Wei = NewType('Wei', int)
 
 
-####  Eth1.X Types  ####
-TxData = NewType('TxData', bytes)
+# ####  Eth1.X Types  ####
 Address = NewType('Address', str)
+ECDSASignature = NewType('ECDSASignature', Dict[str, int])  # {'v':0, 'r':1, 's':2}
 SerializedTransaction = NewType('SerializedTransaction', bytes)
-Transaction = NewType('Transaction', dict)
+TxData = NewType('TxData', bytes)
+
+# ####  RLP Serializable Objects  ####
+address = binary.fixed_length(20)
+
+
+class SignedTransaction(rlp.Serializable):
+    fields = (
+        ('nonce', big_endian_int),
+        ('gas_price', big_endian_int),
+        ('gas', big_endian_int),
+        ('to', address),
+        ('value', big_endian_int),
+        ('data', binary),
+        ('v', big_endian_int),
+        ('r', big_endian_int),
+        ('s', big_endian_int),
+    )
+
+
+class UnsignedTransaction(rlp.Serializable):
+    fields = (
+        ('nonce', big_endian_int),
+        ('gas_price', big_endian_int),
+        ('gas', big_endian_int),
+        ('to', address),
+        ('value', big_endian_int),
+        ('data', binary),
+    )
+
+    def as_signed_transaction(self, signature: ECDSASignature) -> SignedTransaction:
+        return SignedTransaction(**self.as_dict(), **signature)

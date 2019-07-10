@@ -3,8 +3,9 @@ from utils.types import (
     Transaction
 )
 
+
 class TxDownloader(TxBroadcaster):
-    folder = '\.'
+    folder = r'\.'
     file_name = 'deposit_transaction.hex'
 
     @property

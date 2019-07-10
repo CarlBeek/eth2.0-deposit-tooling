@@ -25,4 +25,4 @@ test: test_python
 lint:
 	cd $(PY_DEPOSIT_DIR); . venv/bin/activate; \
 	flake8 --ignore=E252,W504,W503 --max-line-length=120 --exclude venv . \
-	&& mypy --follow-imports=skip ./
+	&& mypy --follow-imports=skip --ignore-missing-imports ./
