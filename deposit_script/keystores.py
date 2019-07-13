@@ -55,4 +55,4 @@ class ScryptKeyStore(KeyStore):
         decryption_key = scrypt(password=password, **self.crypto.kdfparams)
         counter = Counter.new(128, initial_value=int(self.crypto.cipherparams['iv']))
         self.crypto.ciphertext = AES.new(decryption_key, AES.MODE_CTR, counter=counter).encrypt(secret)
-        self.crypto.mac = keccak(decryption_key + self.crypto.ciphertext).hex()
+        self.crypto.mac = keccak(decryption_key + self.crypto.ciphertext)

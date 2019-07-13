@@ -15,8 +15,6 @@ def hash(x):
 
 
 def keccak(x):
-    print(_keccak.new(digest_bits=256).update(x).digest())
-    print(type(_keccak.new(digest_bits=256).update(x).digest()))
     return _keccak.new(digest_bits=256).update(x).digest()
 
 
