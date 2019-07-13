@@ -1,4 +1,4 @@
-from utils.hash import hash
+from utils.crypto import hash
 from utils.constants import ZERO_BYTES32
 from math import log2
 

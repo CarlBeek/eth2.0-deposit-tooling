@@ -1,5 +1,3 @@
-from Crypto.Cipher import AES
-from Crypto.Util import Counter
 from dataclasses import dataclass
 from secrets import randbits
 from typing import Optional
@@ -8,9 +6,10 @@ from utils.typing import (
     KeystorePassward,
     KeystoreSalt,
 )
-from utils.hash import (
+from utils.crypto import (
     keccak,
     scrypt,
+    AES,
 )
 
 
@@ -53,6 +52,5 @@ class ScryptKeyStore(KeyStore):
         self.crypto.kdfparams['salt'] = salt if salt is not None else hex(randbits(256))[:2]
         self.crypto.cipherparams['iv'] = iv if iv is not None else hex(randbits(2**128))[:2]
         decryption_key = scrypt(password=password, **self.crypto.kdfparams)
-        counter = Counter.new(128, initial_value=int(self.crypto.cipherparams['iv']))
-        self.crypto.ciphertext = AES.new(decryption_key, AES.MODE_CTR, counter=counter).encrypt(secret)
+        self.crypto.ciphertext = AES(key=decryption_key, secret=secret, iv=self.crypto.cipherparams['iv'])
         self.crypto.mac = keccak(decryption_key + self.crypto.ciphertext)

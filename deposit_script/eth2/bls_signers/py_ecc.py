@@ -12,7 +12,7 @@ from utils.typing import (
     Bytes32,
     Domain,
 )
-from utils.hash import (
+from utils.crypto import (
     int_to_int_hash,
     hash_func_bytes,
     num_bits_to_num_bytes,

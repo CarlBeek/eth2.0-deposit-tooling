@@ -1,5 +1,7 @@
 from hashlib import sha256
 from Crypto.Hash import keccak as _keccak
+from Crypto.Cipher import AES as _AES
+from Crypto.Util import Counter
 from Crypto.Protocol.KDF import scrypt as _scrypt
 from utils.constants import ENDIANNESS
 from utils.typing import (
@@ -30,5 +32,11 @@ def num_bits_to_num_bytes(x: int) -> int:
 hash_func_bytes = _hash_func().digest_size
 
 
-def scrypt(password: KeystorePassward, salt: KeystoreSalt, n: int, r: int, p: int, dklen: int) -> bytes:
+def scrypt(*, password: KeystorePassward, salt: KeystoreSalt, n: int, r: int, p: int, dklen: int) -> bytes:
     return _scrypt(password=password.encode('utf-8'), salt=salt, key_len=dklen, N=n, r=r, p=p)
+
+
+def AES(*, key: bytes, secret: bytes, iv) -> bytes:
+    counter = Counter.new(128, initial_value=iv)
+    aes = _AES.new(key=key, mode=_AES.MODE_CTR, counter=counter)
+    return aes.encrypt(secret)

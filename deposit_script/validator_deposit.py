@@ -3,7 +3,6 @@ from eth2.bls_signers.py_ecc import (
     SigningCredentials,
 )
 from argparse import ArgumentParser
-import sys
 
 
 def get_args():
@@ -31,5 +30,4 @@ def main():
 
 
 if __name__ == '__main__':
-    assert (sys.version_info >= (3, 7), 'Python >3.7 is required for Scrypt key-derivation'
     main()
