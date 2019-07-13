@@ -1,6 +1,7 @@
 py_ecc >= 1.7.0
 dataclasses == 0.6
 rlp >= 1.1.0
+pycryptodome>=3.6.6  # For AES, scrypt, 
 
 # Testing
 pytest>=4.4

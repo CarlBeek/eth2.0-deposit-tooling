@@ -27,6 +27,11 @@ Address = NewType('Address', str)
 ECDSASignature = NewType('ECDSASignature', Dict[str, int])  # {'v':0, 'r':1, 's':2}
 TxData = NewType('TxData', bytes)
 
+# ####  KeyStore Types  ####
+AESIV = NewType('AESIV', int)
+KeystorePassward = NewType('KeystorePassword', str)
+KeystoreSalt = NewType('KeystoreSalt', bytes)
+
 # ####  RLP Serializable Objects  ####
 address = binary.fixed_length(20)
 

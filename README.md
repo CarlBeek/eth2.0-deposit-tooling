@@ -18,7 +18,7 @@ Trying to keep to the bare minimum for auditability
 
 - Supply TX Data and let 3rd party software handle it
 - Offline
-    - Keystore ??
+    - KeyStore ??
     - Privkey ??
 - Hardware Wallets
     - Ledger
@@ -29,7 +29,7 @@ Trying to keep to the bare minimum for auditability
 ### Eth2 (BLS) Signing & Key-generation
 
 - Need to decide on key derivation func (BIP44 style?)
-- Keystore
+- KeyStore
 - Hardware Wallets
     - Need to get more onboarding for BLS12-381 standard
     - Ledger
@@ -46,9 +46,9 @@ Trying to keep to the bare minimum for auditability
 
 ### Eth1 (ECDSA) Signing & Tx Processing
 
-- Metamask (Support for HW +  Keystore)
+- Metamask (Support for HW +  KeyStore)
 - Fork MEW/MyCrypto for wallet handeling/signing
 
 ### Eth2 (BLS) Signing & Key-generation
 
-- Keystore
+- KeyStore
