@@ -29,8 +29,8 @@ TxData = NewType('TxData', bytes)
 
 # ####  KeyStore Types  ####
 AESIV = NewType('AESIV', str)
-KeystorePassward = NewType('KeystorePassword', str)
-KeystoreSalt = NewType('KeystoreSalt', bytes)
+KeystorePassword = NewType('KeystorePassword', str)
+KeystoreSalt = NewType('KeystoreSalt', str)
 
 # ####  RLP Serializable Objects  ####
 address = binary.fixed_length(20)

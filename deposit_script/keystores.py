@@ -3,7 +3,7 @@ from secrets import randbits
 from typing import Optional
 from utils.typing import (
     AESIV,
-    KeystorePassward,
+    KeystorePassword,
     KeystoreSalt,
 )
 from utils.crypto import (
@@ -47,7 +47,7 @@ class ScryptKeyStore(KeyStore):
     id = ''  # TODO: Figure out how ids are generated (random?)
     version = 3
 
-    def __init__(self, secret: bytes, password: KeystorePassward,
+    def __init__(self, secret: bytes, password: KeystorePassword,
                  salt: Optional[KeystoreSalt]=None, iv: Optional[AESIV]=None):
         self.crypto.kdfparams['salt'] = salt if salt is not None else KeystoreSalt(hex(randbits(256))[2:])
         self.crypto.cipherparams['iv'] = iv if iv is not None else AESIV(hex(randbits(2**128))[2:])

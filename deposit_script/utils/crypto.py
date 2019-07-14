@@ -6,7 +6,7 @@ from Crypto.Protocol.KDF import scrypt as _scrypt
 from utils.constants import ENDIANNESS
 from utils.typing import (
     AESIV,
-    KeystorePassward,
+    KeystorePassword,
     KeystoreSalt,
 )
 
@@ -33,8 +33,9 @@ def num_bits_to_num_bytes(x: int) -> int:
 hash_func_bytes = _hash_func().digest_size
 
 
-def scrypt(*, password: KeystorePassward, salt: KeystoreSalt, n: int, r: int, p: int, dklen: int) -> bytes:
-    return _scrypt(password=password.encode('utf-8'), salt=salt, key_len=dklen, N=n, r=r, p=p)
+def scrypt(*, password: KeystorePassword, salt: KeystoreSalt, n: int, r: int, p: int, dklen: int) -> bytes:
+    res = _scrypt(password=password, salt=salt, key_len=dklen, N=n, r=r, p=p)
+    return res if isinstance(res, bytes) else res[0]  # PyCryptodome can return Tuple[bytes]
 
 
 def AES(*, key: bytes, secret, iv: AESIV) -> bytes:
