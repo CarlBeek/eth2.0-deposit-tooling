@@ -31,7 +31,7 @@ def generate_bls_credentials(args):
 
 
 def generate_keystores(password, credentials: List[Union[SigningCredentials, WithdrawalCredentials]]):
-    return[ScryptKeyStore(password=password, secret=c.privkey.to_bytes(length=32, byteorder=ENDIANNESS)) for c in credentials]
+    return[ScryptKeyStore(password=password, secret=c.privkey.to_bytes(32, byteorder=ENDIANNESS)) for c in credentials]
 
 
 def main():
