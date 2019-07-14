@@ -5,6 +5,7 @@ from Crypto.Util import Counter
 from Crypto.Protocol.KDF import scrypt as _scrypt
 from utils.constants import ENDIANNESS
 from utils.typing import (
+    AESIV,
     KeystorePassward,
     KeystoreSalt,
 )
@@ -36,7 +37,7 @@ def scrypt(*, password: KeystorePassward, salt: KeystoreSalt, n: int, r: int, p:
     return _scrypt(password=password.encode('utf-8'), salt=salt, key_len=dklen, N=n, r=r, p=p)
 
 
-def AES(*, key: bytes, secret: bytes, iv) -> bytes:
-    counter = Counter.new(128, initial_value=iv)
+def AES(*, key: bytes, secret, iv: AESIV) -> bytes:
+    counter = Counter.new(128, initial_value=int(iv, 16))
     aes = _AES.new(key=key, mode=_AES.MODE_CTR, counter=counter)
     return aes.encrypt(secret)

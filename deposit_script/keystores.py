@@ -49,8 +49,8 @@ class ScryptKeyStore(KeyStore):
 
     def __init__(self, secret: bytes, password: KeystorePassward,
                  salt: Optional[KeystoreSalt]=None, iv: Optional[AESIV]=None):
-        self.crypto.kdfparams['salt'] = salt if salt is not None else hex(randbits(256))[:2]
-        self.crypto.cipherparams['iv'] = iv if iv is not None else hex(randbits(2**128))[:2]
+        self.crypto.kdfparams['salt'] = salt if salt is not None else KeystoreSalt(hex(randbits(256))[2:])
+        self.crypto.cipherparams['iv'] = iv if iv is not None else AESIV(hex(randbits(2**128))[2:])
         decryption_key = scrypt(password=password, **self.crypto.kdfparams)
-        self.crypto.ciphertext = AES(key=decryption_key, secret=secret, iv=self.crypto.cipherparams['iv'])
-        self.crypto.mac = keccak(decryption_key + self.crypto.ciphertext)
+        self.crypto.ciphertext = AES(key=decryption_key[:16], secret=secret, iv=self.crypto.cipherparams['iv'])
+        self.crypto.mac = keccak(decryption_key[16:32] + self.crypto.ciphertext)
