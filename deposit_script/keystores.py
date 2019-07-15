@@ -1,4 +1,8 @@
-from dataclasses import dataclass
+from dataclasses import (
+    dataclass,
+    asdict,
+)
+import json
 from secrets import randbits
 from typing import Optional
 from utils.typing import (
@@ -54,3 +58,6 @@ class ScryptKeyStore(KeyStore):
         decryption_key = scrypt(password=password, **self.crypto.kdfparams)
         self.crypto.ciphertext = AES(key=decryption_key[:16], secret=secret, iv=self.crypto.cipherparams['iv'])
         self.crypto.mac = keccak(decryption_key[16:32] + self.crypto.ciphertext)
+
+    def as_json(self) -> str:
+        return json.dumps(asdict(self), default=lambda x: x.hex())
