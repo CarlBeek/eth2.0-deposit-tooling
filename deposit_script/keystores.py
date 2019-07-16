@@ -5,9 +5,13 @@ from dataclasses import (
 )
 import json
 from secrets import randbits
-from typing import Optional
+from typing import (
+    Union,
+    Optional,
+)
 from utils.typing import (
-    AESIV,
+    AESIVBytes,
+    AESIVStr,
     KeystorePassword,
     KeystoreSalt,
 )
@@ -83,9 +87,9 @@ class ScryptKeystore(Keystore):
     version = 3
 
     def __init__(self, *, secret: bytes, password: KeystorePassword,
-                 salt: Optional[KeystoreSalt]=None, iv: Optional[AESIV]=None):
+                 salt: Optional[KeystoreSalt]=None, iv: Union[AESIVBytes, AESIVStr, None]=None):
         self.crypto.kdfparams['salt'] = salt if KeystoreSalt(hex(randbits(256))[2:]) is None else to_bytes(salt)
-        self.crypto.cipherparams['iv'] = iv if AESIV(hex(randbits(128))[2:]) is None else iv
+        self.crypto.cipherparams['iv'] = iv if AESIVStr(hex(randbits(128))[2:]) is None else iv
         decryption_key = scrypt(password=password, **self.crypto.kdfparams)
         self.crypto.ciphertext = AES(key=decryption_key[:16], secret=secret, iv=self.crypto.cipherparams['iv'])
         self.crypto.mac = keccak(decryption_key[16:32] + self.crypto.ciphertext)

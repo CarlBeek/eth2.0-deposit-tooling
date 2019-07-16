@@ -28,7 +28,8 @@ ECDSASignature = NewType('ECDSASignature', Dict[str, int])  # {'v':0, 'r':1, 's'
 TxData = NewType('TxData', bytes)
 
 # ####  Keystore Types  ####
-AESIV = NewType('AESIV', str)
+AESIVStr = NewType('AESIVStr', str)
+AESIVBytes = NewType('AESIVBytes', bytes)
 KeystorePassword = NewType('KeystorePassword', str)
 KeystoreSalt = NewType('KeystoreSalt', str)
 

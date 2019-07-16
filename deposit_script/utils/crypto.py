@@ -3,9 +3,11 @@ from Crypto.Hash import keccak as _keccak
 from Crypto.Cipher import AES as _AES
 from Crypto.Util import Counter
 from Crypto.Protocol.KDF import scrypt as _scrypt
+from typing import Union
 from utils.constants import ENDIANNESS
 from utils.typing import (
-    AESIV,
+    AESIVBytes,
+    AESIVStr,
     KeystorePassword,
     KeystoreSalt,
 )
@@ -38,8 +40,8 @@ def scrypt(*, password: KeystorePassword, salt: KeystoreSalt, n: int, r: int, p:
     return res if isinstance(res, bytes) else res[0]  # PyCryptodome can return Tuple[bytes]
 
 
-def AES(*, key: bytes, secret, iv: AESIV) -> bytes:
-    iv = iv.hex() if isinstance(iv, bytes) else iv
-    counter = Counter.new(128, initial_value=int(iv, 16))
+def AES(*, key: bytes, secret, iv: Union[AESIVBytes, AESIVStr]) -> bytes:
+    iv_hex = iv.hex() if isinstance(iv, bytes) else iv
+    counter = Counter.new(128, initial_value=int(iv_hex, 16))
     aes = _AES.new(key=key, mode=_AES.MODE_CTR, counter=counter)
     return aes.encrypt(secret)
