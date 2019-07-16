@@ -39,6 +39,7 @@ def scrypt(*, password: KeystorePassword, salt: KeystoreSalt, n: int, r: int, p:
 
 
 def AES(*, key: bytes, secret, iv: AESIV) -> bytes:
+    iv = iv.hex() if isinstance(iv, bytes) else iv
     counter = Counter.new(128, initial_value=int(iv, 16))
     aes = _AES.new(key=key, mode=_AES.MODE_CTR, counter=counter)
     return aes.encrypt(secret)

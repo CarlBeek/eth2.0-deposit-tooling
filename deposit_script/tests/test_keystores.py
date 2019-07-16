@@ -40,6 +40,4 @@ def test_mac():
     iv = loads(test_keystore_json)['crypto']['cipherparams']['iv']
     salt = loads(test_keystore_json)['crypto']['kdfparams']['salt']
     keystore = ScryptKeystore(secret=test_secret, password=test_password, salt=salt, iv=iv)
-    print(keystore.crypto)
-    print(Keystore.from_json(test_keystore_json).crypto)
-    assert keystore.crypto == Keystore.from_json(test_keystore_json).crypto
+    assert keystore.crypto.mac == Keystore.from_json(test_keystore_json).crypto.mac

@@ -26,8 +26,6 @@ def to_bytes(obj):
             return bytes.fromhex(obj)
     elif isinstance(obj, dict):
         for key, value in obj.items():
-            if key == 'iv':
-                continue
             obj[key] = to_bytes(value)
     return obj
 
