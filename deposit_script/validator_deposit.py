@@ -8,7 +8,7 @@ from eth2.bls_signers.py_ecc import (
     WithdrawalCredentials,
     SigningCredentials,
 )
-from keystores import ScryptKeyStore
+from keystores import ScryptKeystore
 
 
 def get_args():
@@ -31,7 +31,7 @@ def generate_bls_credentials(args):
 
 
 def generate_keystores(password, credentials: List[Union[SigningCredentials, WithdrawalCredentials]]):
-    return[ScryptKeyStore(password=password, secret=c.privkey.to_bytes(32, byteorder=ENDIANNESS)) for c in credentials]
+    return[ScryptKeystore(password=password, secret=c.privkey.to_bytes(32, byteorder=ENDIANNESS)) for c in credentials]
 
 
 def main():

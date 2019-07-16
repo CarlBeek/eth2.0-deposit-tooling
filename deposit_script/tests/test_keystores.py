@@ -1,6 +1,6 @@
 from keystores import (
-    KeyStore,
-    ScryptKeyStore,
+    Keystore,
+    ScryptKeystore,
 )
 
 from json import loads
@@ -32,14 +32,14 @@ test_keystore_json = '''
 
 
 def test_json_serialization():
-    keystore = KeyStore.from_json(test_keystore_json)
+    keystore = Keystore.from_json(test_keystore_json)
     assert loads(keystore.as_json()) == loads(test_keystore_json)
 
 
 def test_mac():
     iv = loads(test_keystore_json)['crypto']['cipherparams']['iv']
     salt = loads(test_keystore_json)['crypto']['kdfparams']['salt']
-    keystore = ScryptKeyStore(secret=test_secret, password=test_password, salt=salt, iv=iv)
+    keystore = ScryptKeystore(secret=test_secret, password=test_password, salt=salt, iv=iv)
     print(keystore.crypto)
-    print(KeyStore.from_json(test_keystore_json).crypto)
-    assert keystore.crypto == KeyStore.from_json(test_keystore_json).crypto
+    print(Keystore.from_json(test_keystore_json).crypto)
+    assert keystore.crypto == Keystore.from_json(test_keystore_json).crypto

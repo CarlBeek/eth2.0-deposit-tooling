@@ -27,7 +27,7 @@ Address = NewType('Address', str)
 ECDSASignature = NewType('ECDSASignature', Dict[str, int])  # {'v':0, 'r':1, 's':2}
 TxData = NewType('TxData', bytes)
 
-# ####  KeyStore Types  ####
+# ####  Keystore Types  ####
 AESIV = NewType('AESIV', str)
 KeystorePassword = NewType('KeystorePassword', str)
 KeystoreSalt = NewType('KeystoreSalt', str)

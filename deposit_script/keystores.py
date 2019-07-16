@@ -40,7 +40,7 @@ class BytesDataclass:
 
 
 @dataclass
-class KeyStoreCrypto(BytesDataclass):
+class KeystoreCrypto(BytesDataclass):
     cipher: str
     cipherparams: dict
     ciphertext: bytes
@@ -50,8 +50,8 @@ class KeyStoreCrypto(BytesDataclass):
 
 
 @dataclass
-class KeyStore(BytesDataclass):
-    crypto: KeyStoreCrypto
+class Keystore(BytesDataclass):
+    crypto: KeystoreCrypto
     id: str
     version: int
 
@@ -61,14 +61,14 @@ class KeyStore(BytesDataclass):
     @classmethod
     def from_json(cls, json_str: str):
         json_dict = json.loads(json_str)
-        crypto = KeyStoreCrypto(**json_dict['crypto'])
+        crypto = KeystoreCrypto(**json_dict['crypto'])
         id = json_dict['id']
         version = json_dict['version']
         return cls(crypto=crypto, id=id, version=version)
 
 
-class ScryptKeyStore(KeyStore):
-    crypto = KeyStoreCrypto(
+class ScryptKeystore(Keystore):
+    crypto = KeystoreCrypto(
         cipher='aes-128-ctr',
         cipherparams=dict(),
         ciphertext=bytes(),
