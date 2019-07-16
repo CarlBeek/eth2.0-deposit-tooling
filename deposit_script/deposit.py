@@ -1,14 +1,8 @@
 from argparse import ArgumentParser
-from typing import (
-    List,
-    Union,
-)
-from utils.constants import ENDIANNESS
-from eth2.bls_signers.py_ecc import (
+from eth2.bls_signers import (
     WithdrawalCredentials,
     SigningCredentials,
 )
-from keystores import ScryptKeystore
 
 
 def get_args():
@@ -30,15 +24,9 @@ def generate_bls_credentials(args):
     return withdrawal_credentials, signing_credentials
 
 
-def generate_keystores(password, credentials: List[Union[SigningCredentials, WithdrawalCredentials]]):
-    return[ScryptKeystore(password=password, secret=c.privkey.to_bytes(32, byteorder=ENDIANNESS)) for c in credentials]
-
-
 def main():
     args = get_args()
-    withdrawal_credentials, signing_credentials = generate_bls_credentials(args)
-    withdrawal_keystores = generate_keystores(args.withdraw_pwd, withdrawal_credentials)
-    print(withdrawal_keystores)
+    withdrawal_keystores, signing_keystores = generate_bls_credentials(args)
 
 
 if __name__ == '__main__':

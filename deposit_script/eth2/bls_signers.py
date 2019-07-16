@@ -4,7 +4,9 @@ from py_ecc.bls.api import (
     sign,
 )
 from secrets import randbelow
+import abc
 from typing import Tuple
+from keystores import ScryptKeystore
 from utils.typing import (
     BLSPubkey,
     BLSPrivkey,
@@ -18,7 +20,17 @@ from utils.crypto import (
     num_bits_to_num_bytes,
 )
 from utils.constants import ENDIANNESS
-from eth2.bls_signers.abstract_signer import BLSSigner
+
+
+class BLSSigner(object, metaclass=abc.ABCMeta):
+
+    @abc.abstractmethod
+    def sign(self, message_hash: Bytes32, domain: Domain) -> BLSSignature:
+        pass
+
+    @abc.abstractproperty
+    def pubkey(self) -> BLSPubkey:
+        pass
 
 
 def derive_privkey(parent_privkey: BLSPrivkey) -> BLSPrivkey:
@@ -43,6 +55,10 @@ class PythonSigner(BLSSigner):
     @property
     def pubkey(self) -> BLSPubkey:
         return BLSPubkey(privtopub(self.privkey))
+
+    def as_keystore(self, *, password: str) -> ScryptKeystore:
+        secret = self.privkey.to_bytes(length=32, byteorder=ENDIANNESS)
+        return ScryptKeystore(secret=secret, password=password)
 
 
 class WithdrawalCredentials(PythonSigner):
