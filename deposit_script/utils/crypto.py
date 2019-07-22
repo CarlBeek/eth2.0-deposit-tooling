@@ -1,4 +1,8 @@
-from hashlib import sha256
+from hashlib import (
+    sha256,
+    sha512,
+)
+import hmac
 from Crypto.Hash import keccak as _keccak
 from Crypto.Cipher import AES as _AES
 from Crypto.Util import Counter
@@ -45,3 +49,7 @@ def AES(*, key: bytes, secret, iv: Union[AESIVBytes, AESIVStr]) -> bytes:
     counter = Counter.new(128, initial_value=int(iv_hex, 16))
     aes = _AES.new(key=key, mode=_AES.MODE_CTR, counter=counter)
     return aes.encrypt(secret)
+
+
+def hmac_sha512(*, key: bytes, msg):
+    return hmac.new(key=key, msg=msg, digestmod=sha512).digest()
