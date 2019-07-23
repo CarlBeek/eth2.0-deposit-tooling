@@ -1,6 +1,6 @@
 from hashlib import (
-    sha256,
-    sha512,
+    sha256 as _sha256,
+    sha512 as _sha512,
 )
 import hmac
 from Crypto.Hash import keccak as _keccak
@@ -19,11 +19,19 @@ from utils.typing import (
     KeystoreSalt,
 )
 
-_hash_func = sha256  # Declared once to ensure future uses use correct version
+_hash_func = _sha256  # Declared once to ensure future uses use correct version
 
 
 def hash(x):
     return _hash_func(x).digest()
+
+
+def sha256(x):
+    return _sha256(x).digest()
+
+
+def sha512(x):
+    return _sha512(x).digest()
 
 
 def keccak(x):
@@ -65,4 +73,4 @@ def AES(*, key: bytes, secret, iv: Union[AESIVBytes, AESIVStr]) -> bytes:
 
 
 def hmac_sha512(*, key: bytes, msg) -> bytes:
-    return hmac.new(key=key, msg=msg, digestmod=sha512).digest()
+    return hmac.new(key=key, msg=msg, digestmod=_sha512).digest()

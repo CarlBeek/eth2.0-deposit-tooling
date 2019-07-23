@@ -15,12 +15,18 @@ def get_seed(*, mnemonic: str, password: Optional[str]='') -> bytes:
 
 
 def get_mnemonic(entropy: Optional[bytes]) -> str:
-    entropy = randbits(256).to_bytes(32, 'big')
-    entropy += sha256(entropy)[0]
-    entropy_bits = int.from_bytes(entropy, byteorder='big')
+    entropy_length = len(entropy) * 8
+    if entropy is not None:
+        assert entropy_length in range(128, 257, 32)
+    else:
+        entropy = randbits(256).to_bytes(32, 'big')
+    checksum_length = (entropy_length // 32)
+    checksum = int.from_bytes(sha256(entropy), 'big') >> 256 - checksum_length
+    entropy_bits = int.from_bytes(entropy, 'big') << checksum_length
+    entropy_bits += checksum
+    entropy_length += checksum_length
     mnemonic = []
-    while entropy_bits.bitlength() > 0:
-        index = entropy_bits & 2**11
+    for i in range(entropy_length // 11 - 1, -1, -1):
+        index = (entropy_bits >> i * 11) & 2**11 - 1
         mnemonic.append(get_word(index))
-        entropy_bits >>= 11
     return ' '.join(mnemonic)
