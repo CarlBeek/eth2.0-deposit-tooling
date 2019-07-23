@@ -1,8 +1,5 @@
 from utils.crypto import hmac_sha512
-from typing import (
-    Tuple,
-    Union,
-)
+from typing import Tuple
 from py_ecc.secp256k1 import (
     privtopub,
     N,
@@ -39,8 +36,7 @@ def derive_child_privkey(k_par: int, c_par: bytes, i: int) -> Tuple[int, bytes]:
     return k_i, c_i
 
 
-def derive_master_privkey(seed_phrase: Union[str, bytes]) -> Tuple[int, bytes]:
-    seed = seed_phrase if isinstance(seed_phrase, bytes) else str.encode(seed_phrase)
+def derive_master_privkey(seed: bytes) -> Tuple[int, bytes]:
     I = hmac_sha512(key=str.encode('Bitcoin seed'), msg=seed)  # noqa: E741
     I_left = I[:32]
     I_right = I[32:]
