@@ -6,7 +6,10 @@ import hmac
 from Crypto.Hash import keccak as _keccak
 from Crypto.Cipher import AES as _AES
 from Crypto.Util import Counter
-from Crypto.Protocol.KDF import scrypt as _scrypt
+from Crypto.Protocol.KDF import (
+    scrypt as _scrypt,
+    PBKDF2 as _PBKDF2,
+)
 from typing import Union
 from utils.constants import ENDIANNESS
 from utils.typing import (
@@ -44,6 +47,16 @@ def scrypt(*, password: KeystorePassword, salt: KeystoreSalt, n: int, r: int, p:
     return res if isinstance(res, bytes) else res[0]  # PyCryptodome can return Tuple[bytes]
 
 
+def PBKDF2(*, password: bytes, salt: bytes, iters: int=2048) -> bytes:
+    return _PBKDF2(
+        password=password,
+        salt=salt,
+        dkLen=64,
+        count=iters,
+        prf=lambda p, s: hmac_sha512(key=p, msg=s),
+    )
+
+
 def AES(*, key: bytes, secret, iv: Union[AESIVBytes, AESIVStr]) -> bytes:
     iv_hex = iv.hex() if isinstance(iv, bytes) else iv
     counter = Counter.new(128, initial_value=int(iv_hex, 16))
@@ -51,5 +64,5 @@ def AES(*, key: bytes, secret, iv: Union[AESIVBytes, AESIVStr]) -> bytes:
     return aes.encrypt(secret)
 
 
-def hmac_sha512(*, key: bytes, msg):
+def hmac_sha512(*, key: bytes, msg) -> bytes:
     return hmac.new(key=key, msg=msg, digestmod=sha512).digest()
