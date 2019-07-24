@@ -39,7 +39,7 @@ def derive_privkey(parent_privkey: BLSPrivkey) -> BLSPrivkey:
     num_bytes = num_bits_to_num_bytes(curve_order.bit_length())
     assert hash_func_bytes >= num_bytes  # Sanity check that the hash func generates sufficient entropy
     while True:
-        key = BLSPrivkey(int_to_int_hash(int(parent_privkey), num_bytes))
+        key = BLSPrivkey(int_to_int_hash(int(parent_privkey)))
         if key > BLSPrivkey(curve_order):
             parent_privkey = key
             continue
@@ -57,7 +57,7 @@ class PythonSigner(BLSSigner):
         return BLSPubkey(privtopub(self.privkey))
 
     def as_keystore(self, *, password: str) -> ScryptKeystore:
-        secret = self.privkey.to_bytes(length=32, byteorder=ENDIANNESS)
+        secret = self.privkey.to_bytes(length=32, byteorder='big')
         return ScryptKeystore(secret=secret, password=password)
 
 

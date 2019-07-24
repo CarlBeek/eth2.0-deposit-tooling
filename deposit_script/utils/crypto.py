@@ -11,7 +11,6 @@ from Crypto.Protocol.KDF import (
     PBKDF2 as _PBKDF2,
 )
 from typing import Union
-from utils.constants import ENDIANNESS
 from utils.typing import (
     AESIVBytes,
     AESIVStr,
@@ -26,6 +25,9 @@ def hash(x):
     return _hash_func(x).digest()
 
 
+hash_func_bytes = _hash_func().digest_size
+
+
 def sha256(x):
     return _sha256(x).digest()
 
@@ -38,16 +40,13 @@ def keccak(x):
     return _keccak.new(digest_bits=256).update(x).digest()
 
 
-def int_to_int_hash(x: int, num_bytes: int) -> int:
-    hashed_int = hash(x.to_bytes(num_bytes, byteorder='big'))
+def int_to_int_hash(x: int) -> int:
+    hashed_int = hash(x.to_bytes(hash_func_bytes, byteorder='big'))
     return int.from_bytes(hashed_int, byteorder='big')
 
 
 def num_bits_to_num_bytes(x: int) -> int:
     return -(-x // 8)
-
-
-hash_func_bytes = _hash_func().digest_size
 
 
 def scrypt(*, password: KeystorePassword, salt: KeystoreSalt, n: int, r: int, p: int, dklen: int) -> bytes:
