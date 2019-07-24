@@ -1,8 +1,8 @@
 from argparse import ArgumentParser
-from eth2.bls_signers import (
-    WithdrawalCredentials,
-    SigningCredentials,
-)
+# from eth2.bls_signers import (
+#     WithdrawalCredentials,
+#     SigningCredentials,
+# )
 
 
 def get_args():
@@ -18,9 +18,9 @@ def get_args():
 def generate_bls_credentials(args):
     withdrawal_credentials = []
     signing_credentials = []
-    for validator in range(args.num_validators):
-        withdrawal_credentials.append(WithdrawalCredentials())
-        signing_credentials.append(SigningCredentials(withdrawal_credentials[-1]))
+    # for validator in range(args.num_validators):
+    #     withdrawal_credentials.append(WithdrawalCredentials())
+    #     signing_credentials.append(SigningCredentials(withdrawal_credentials[-1]))
     return withdrawal_credentials, signing_credentials
 
 
