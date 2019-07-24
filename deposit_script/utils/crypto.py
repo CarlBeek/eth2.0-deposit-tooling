@@ -19,15 +19,15 @@ def hash(x):
     return _hash_func(x).digest()
 
 
-hash_func_bytes = _hash_func().digest_size
-
-
 def sha256(x):
     return _sha256(x).digest()
 
 
 def sha512(x):
     return _sha512(x).digest()
+
+
+hash_func_bytes = _hash_func().digest_size
 
 
 def keccak(x):
