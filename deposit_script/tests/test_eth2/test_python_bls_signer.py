@@ -1,26 +1,23 @@
-from py_ecc.optimized_bls12_381.optimized_curve import curve_order
 from py_ecc.bls.api import privtopub
 from eth2.bls_signers import (
-    WithdrawalCredentials,
-    SigningCredentials,
-    derive_privkey,
+    PythonSigner,
+)
+from utils.bls import (
+    bls_verify,
+    bls_curve_order,
+    get_domain,
 )
 
 
-def valid_key_credentials(credentials) -> bool:
-    return (
-        credentials.privkey < curve_order
-        and credentials.pubkey == privtopub(credentials.privkey)
-    )
+def verify_credentials(credentials: PythonSigner):
+    assert credentials.privkey < bls_curve_order
+    assert credentials.pubkey == privtopub(credentials.privkey)
+    msg = b'\x11' * 32
+    domain = get_domain()
+    signature = credentials.sign(msg, domain)
+    assert bls_verify(pubkey=credentials.pubkey, message_hash=msg, signature=signature, domain=domain)
 
 
 def test_withdrawal_keys():
-    credentials = WithdrawalCredentials()
-    assert valid_key_credentials(credentials)
-
-
-def test_signing_keys():
-    withdrawal_credentials = WithdrawalCredentials()
-    signing_credentials = SigningCredentials(withdrawal_credentials)
-    assert derive_privkey(withdrawal_credentials.privkey) == signing_credentials.privkey
-    assert valid_key_credentials(signing_credentials)
+    credentials = PythonSigner(privkey=1234567890)
+    verify_credentials(credentials)
