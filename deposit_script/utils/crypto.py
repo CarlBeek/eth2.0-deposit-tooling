@@ -11,12 +11,6 @@ from Crypto.Protocol.KDF import (
     PBKDF2 as _PBKDF2,
 )
 from typing import Union
-from utils.typing import (
-    AESIVBytes,
-    AESIVStr,
-    KeystorePassword,
-    KeystoreSalt,
-)
 
 _hash_func = _sha256  # Declared once to ensure future uses use correct version
 
@@ -49,7 +43,7 @@ def num_bits_to_num_bytes(x: int) -> int:
     return -(-x // 8)
 
 
-def scrypt(*, password: KeystorePassword, salt: KeystoreSalt, n: int, r: int, p: int, dklen: int) -> bytes:
+def scrypt(*, password: str, salt: str, n: int, r: int, p: int, dklen: int) -> bytes:
     res = _scrypt(password=password, salt=salt, key_len=dklen, N=n, r=r, p=p)
     return res if isinstance(res, bytes) else res[0]  # PyCryptodome can return Tuple[bytes]
 
@@ -64,7 +58,7 @@ def PBKDF2(*, password: bytes, salt: bytes, iters: int=2048) -> bytes:
     )
 
 
-def AES(*, key: bytes, secret, iv: Union[AESIVBytes, AESIVStr]) -> bytes:
+def AES(*, key: bytes, secret, iv: Union[bytes, str]) -> bytes:
     iv_hex = iv.hex() if isinstance(iv, bytes) else iv
     counter = Counter.new(128, initial_value=int(iv_hex, 16))
     aes = _AES.new(key=key, mode=_AES.MODE_CTR, counter=counter)

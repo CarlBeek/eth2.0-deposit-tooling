@@ -9,12 +9,6 @@ from typing import (
     Union,
     Optional,
 )
-from utils.typing import (
-    AESIVBytes,
-    AESIVStr,
-    KeystorePassword,
-    KeystoreSalt,
-)
 from utils.crypto import (
     keccak,
     scrypt,
@@ -86,10 +80,10 @@ class ScryptKeystore(Keystore):
     id = ''  # TODO: Figure out how ids are generated (random?)
     version = 3
 
-    def __init__(self, *, secret: bytes, password: KeystorePassword,
-                 salt: Optional[KeystoreSalt]=None, iv: Union[AESIVBytes, AESIVStr, None]=None):
-        self.crypto.kdfparams['salt'] = salt if KeystoreSalt(hex(randbits(256))[2:]) is None else to_bytes(salt)
-        self.crypto.cipherparams['iv'] = iv if AESIVStr(hex(randbits(128))[2:]) is None else iv
+    def __init__(self, *, secret: bytes, password: str,
+                 salt: Optional[bytes]=None, iv: Union[bytes, str, None]=None):
+        self.crypto.kdfparams['salt'] = randbits(256).to_bytes(32, 'big') if salt is None else to_bytes(salt)
+        self.crypto.cipherparams['iv'] = str(hex(randbits(128))[2:]) if iv is None else iv
         decryption_key = scrypt(password=password, **self.crypto.kdfparams)
         self.crypto.ciphertext = AES(key=decryption_key[:16], secret=secret, iv=self.crypto.cipherparams['iv'])
         self.crypto.mac = keccak(decryption_key[16:32] + self.crypto.ciphertext)
