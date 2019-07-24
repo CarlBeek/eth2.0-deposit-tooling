@@ -39,8 +39,8 @@ def keccak(x):
 
 
 def int_to_int_hash(x: int, num_bytes: int) -> int:
-    hashed_int = hash(x.to_bytes(num_bytes, byteorder=ENDIANNESS))
-    return int.from_bytes(hashed_int, byteorder=ENDIANNESS)
+    hashed_int = hash(x.to_bytes(num_bytes, byteorder='big'))
+    return int.from_bytes(hashed_int, byteorder='big')
 
 
 def num_bits_to_num_bytes(x: int) -> int:
@@ -57,7 +57,7 @@ def scrypt(*, password: KeystorePassword, salt: KeystoreSalt, n: int, r: int, p:
 
 def PBKDF2(*, password: bytes, salt: bytes, iters: int=2048) -> bytes:
     return _PBKDF2(
-        password=password,
+        password=bytes.decode(password),
         salt=salt,
         dkLen=64,
         count=iters,

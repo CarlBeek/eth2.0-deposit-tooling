@@ -8,7 +8,7 @@ from utils.crypto import (
 )
 
 
-def get_seed(*, mnemonic: str, password: Optional[str]='') -> bytes:
+def get_seed(*, mnemonic: str, password: str='') -> bytes:
     mnemonic = normalize('NFKD', mnemonic)
     password = normalize('NFKD', 'mnemonic' + password)
     return PBKDF2(password=mnemonic.encode('UTF-8'), salt=password.encode('UTF-8'))
