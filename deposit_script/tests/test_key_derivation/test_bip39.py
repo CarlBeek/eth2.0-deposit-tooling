@@ -37,6 +37,11 @@ def test_get_seed():
         assert get_seed(mnemonic=test[1], password='TREZOR') == test[2]
 
 
-def test_get_mnemonic():
+def test_mnemonic_from_seed():
     for test in test_vectors:
         assert get_mnemonic(entropy=test[0]) == test[1]
+
+
+def test_new_random_mnemonic():
+    mnemonic = get_mnemonic().split(' ')
+    assert len(mnemonic) == 24

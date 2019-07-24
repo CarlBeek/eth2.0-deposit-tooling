@@ -14,7 +14,7 @@ def get_seed(*, mnemonic: str, password: str='') -> bytes:
     return PBKDF2(password=mnemonic.encode('UTF-8'), salt=password.encode('UTF-8'))
 
 
-def get_mnemonic(entropy: Optional[bytes]) -> str:
+def get_mnemonic(entropy: Optional[bytes]=None) -> str:
     if entropy is None:
         entropy = randbits(256).to_bytes(32, 'big')
     entropy_length = len(entropy) * 8
