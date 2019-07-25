@@ -1,4 +1,4 @@
-english_word_list = open('key_derivation/english.txt').readlines()
+english_word_list = open('key_derivation/mnemonic/english.txt').readlines()
 
 
 def get_word(index: int) -> str:
