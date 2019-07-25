@@ -1,4 +1,4 @@
-from key_derivation.bip39 import (
+from key_derivation.mnemonic.bip39 import (
     get_seed,
     get_mnemonic,
 )

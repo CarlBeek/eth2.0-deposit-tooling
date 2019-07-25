@@ -1,7 +1,7 @@
 from unicodedata import normalize
 from typing import Optional
 from secrets import randbits
-from key_derivation.word_lists import get_word
+from key_derivation.mnemonic.word_lists import get_word
 from utils.crypto import (
     PBKDF2,
     sha256,

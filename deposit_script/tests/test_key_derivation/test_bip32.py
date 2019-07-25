@@ -1,4 +1,4 @@
-from key_derivation.bip32 import (
+from key_derivation.tree.bip32 import (
     derive_child_privkey,
     derive_master_privkey,
 )

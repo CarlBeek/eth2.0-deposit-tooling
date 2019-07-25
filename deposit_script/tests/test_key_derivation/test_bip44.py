@@ -1,4 +1,4 @@
-from key_derivation.bip44 import path_to_nodes
+from key_derivation.path.bip44 import path_to_nodes
 
 test_vectors = (
     ("m / 44' / 0' / 0' / 0 / 0", [2147483692, 2147483648, 2147483648, 0, 0]),
