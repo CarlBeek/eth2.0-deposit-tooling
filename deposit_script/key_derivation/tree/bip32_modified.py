@@ -1,4 +1,8 @@
 from utils.crypto import hmac_sha512
+from utils.typing import (
+    BLSPubkey,
+    BLSPrivkey,
+)
 from typing import Tuple
 from utils.bls import (
     bls_curve_order,
@@ -6,8 +10,8 @@ from utils.bls import (
 )
 
 
-def point(p: int) -> Tuple[int, int]:
-    return bls_priv_to_pub(p.to_bytes(32, byteorder='big'))
+def point(p: int) -> BLSPubkey:
+    return bls_priv_to_pub(BLSPrivkey(p))
 
 
 def ser_256(p: int) -> bytes:
@@ -22,10 +26,18 @@ def de_ser_int(b: bytes) -> int:
     return int.from_bytes(b, 'big')
 
 
-def ser_p(p: Tuple[int, int]) -> bytes:
+def ser_p(p: BLSPubkey) -> bytes:
     x, y = p
     flags = b'\x02' if y % 2 == 0 else b'\x03'
     return flags + ser_256(x)
+
+
+def bytes_xor(a: bytes, b: bytes) -> bytes:
+    length = max(len(a), len(b))
+    int_a = int.from_bytes(a, 'big')
+    int_b = int.from_bytes(b, 'big')
+    int_ab = int_a ^ int_b
+    return int_ab.to_bytes(length, 'big')
 
 
 def get_valid_I(*, chain_code: bytes, data: bytes) -> bytes:
@@ -36,7 +48,7 @@ def get_valid_I(*, chain_code: bytes, data: bytes) -> bytes:
         trial_k = de_ser_int(I_left) >> 1
         if trial_k < bls_curve_order:
             return I
-        data ^= I_left
+        data = bytes_xor(data, I_left)
 
 
 def derive_child_privkey(k_par: int, c_par: bytes, i: int) -> Tuple[int, bytes]:
