@@ -2,7 +2,7 @@
 
 This repository serves several purposes: it is to be the home for the Eth2 python deposit CLI, as well as for the specification of key derivation and storage keystores.
 
-**Note:** This is still a work in progress. Changes and (counter)proposals are welcome via PRs and Issues (although make them quickly as this needs to be finalixed and audited before DEVCON V, Oct 8).
+**Note:** This is still a work in progress. Changes and (counter)proposals are welcome via PRs and Issues (although make them quickly as this needs to be finalixed and audited before DEVCON V, Oct 8). Let's also try avoid bike-shedding here, this only needs to be good enough.
 
 ## Raison D'etre
 
