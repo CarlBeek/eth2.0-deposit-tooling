@@ -26,7 +26,7 @@ Unfortunately, due to the different curve order of BLS12-381, the properties pro
 
 The following is a word-vomit summary because I ran out of time:
 
-BIP 32 (the tree KDF) is designed around secp256k1 and so by switching to 12-381 all of the properties of the tree are lost. I would like to propose an alternate KDF that retains these properties. (While I'm at it I would also like to replace the string "Bitcoin seed" in the master node derivation.) Ideally, I would like to replace HMAC-SHA512 with a counter version of SHA256, but this is solely for the purposes of not having 2 extra cyrpto constructions.
+BIP 32 (the tree KDF) is designed around secp256k1 and so, by switching to 12-381, many of the properties of the tree are lost. I would like to propose an alternate KDF that retains these properties. (While I'm at it I would also like to replace the string "Bitcoin seed" in the master node derivation.) Ideally, I would like to replace HMAC-SHA512 with a counter version of SHA256, but this is solely for the purposes of not having 2 extra cyrpto constructions.
 
 BIP39 (mnemonic generation): The only thing I don't like about it is the use of PBKDF2-HMAC-SHA512, I would prefer to use scrypt here (due to its increased memory - and therefore ASIC - hardness). This is useful for brute-force attacks against mnemonics.
 
