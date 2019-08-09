@@ -34,11 +34,6 @@ def keccak(x):
     return _keccak.new(digest_bits=256).update(x).digest()
 
 
-def int_to_int_hash(x: int) -> int:
-    hashed_int = hash(x.to_bytes(hash_func_bytes, byteorder='big'))
-    return int.from_bytes(hashed_int, byteorder='big')
-
-
 def num_bits_to_num_bytes(x: int) -> int:
     return -(-x // 8)
 

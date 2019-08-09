@@ -1,17 +1,24 @@
 from unicodedata import normalize
 from typing import Optional
 from secrets import randbits
-from key_derivation.mnemonic.word_lists import get_word
 from utils.crypto import (
-    PBKDF2,
+    scrypt,
     sha256,
 )
+
+
+english_word_list = open('key_derivation/english.txt').readlines()
+
+
+def get_word(index: int) -> str:
+    assert index < 2048
+    return english_word_list[index][:-1]
 
 
 def get_seed(*, mnemonic: str, password: str='') -> bytes:
     mnemonic = normalize('NFKD', mnemonic)
     password = normalize('NFKD', 'mnemonic' + password)
-    return PBKDF2(password=mnemonic.encode('UTF-8'), salt=password.encode('UTF-8'))
+    return scrypt(password=mnemonic, salt=password, n=2**18, r=1, p=8, dklen=32)
 
 
 def get_mnemonic(entropy: Optional[bytes]=None) -> str:
