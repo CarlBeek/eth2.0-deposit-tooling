@@ -5,15 +5,8 @@ from dataclasses import (
 )
 import json
 from secrets import randbits
-from typing import (
-    Union,
-    Optional,
-)
-from utils.crypto import (
-    keccak,
-    scrypt,
-    AES,
-)
+from utils.crypto import scrypt
+from uuid import uuid4 as uuid
 
 hexdigits = set('0123456789abcdef')
 
@@ -37,12 +30,8 @@ class BytesDataclass:
 
 @dataclass
 class KeystoreCrypto(BytesDataclass):
-    cipher: str
-    cipherparams: dict
     ciphertext: bytes
-    kdf: str
-    kdfparams: dict
-    mac: bytes
+    scryptparams: dict
 
 
 @dataclass
@@ -65,25 +54,20 @@ class Keystore(BytesDataclass):
 
 class ScryptKeystore(Keystore):
     crypto = KeystoreCrypto(
-        cipher='aes-128-ctr',
-        cipherparams=dict(),
         ciphertext=bytes(),
-        kdf='scrypt',
-        kdfparams={
+        scryptparams={
             'dklen': 32,
             'n': 2**18,
             'r': 1,
             'p': 8,
         },
-        mac=bytes()
     )
-    id = ''  # TODO: Figure out how ids are generated (random?)
-    version = 3
+    id = ''
+    version = 4
 
-    def __init__(self, *, secret: bytes, password: str,
-                 salt: Optional[bytes]=None, iv: Union[bytes, str, None]=None):
-        self.crypto.kdfparams['salt'] = randbits(256).to_bytes(32, 'big') if salt is None else to_bytes(salt)
-        self.crypto.cipherparams['iv'] = str(hex(randbits(128))[2:]) if iv is None else iv
-        decryption_key = scrypt(password=password, **self.crypto.kdfparams)
-        self.crypto.ciphertext = AES(key=decryption_key[:16], secret=secret, iv=self.crypto.cipherparams['iv'])
-        self.crypto.mac = keccak(decryption_key[16:32] + self.crypto.ciphertext)
+    def __init__(self, *, secret: bytes, password: str):
+        self.id = str(uuid())
+        self.crypto.scryptparams['salt'] = randbits(256).to_bytes(32, 'big')
+        cipher_salt = randbits(256).to_bytes(32, 'big')
+        decryption_key = scrypt(password=password, **self.crypto.scryptparams)
+        self.crypto.ciphertext = bytes(a ^ b for a, b in zip(decryption_key, cipher_salt))
