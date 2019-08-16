@@ -1,4 +1,4 @@
-from py_ecc.optimized_bls12_381.optimized_curve import curve_order as _curve_order
+from py_ecc.bls12_381.bls12_381_curve import curve_order as _curve_order
 from py_ecc.bls.api import (
     privtopub as _priv_to_pub,
     verify as _verify,

@@ -4,7 +4,7 @@ Herein is the specification of keystores and key derivation within Eth2.0. As th
 
 ## Keystores
 
-The keystores are the same as those used within Eth1.X with some (compatible) simplifications. [See here for the specification.](./keystores.md).
+The keystores are the same as those used within Eth1.X with some (compatible) simplifications. [See here for the specification.](./keystore.md).
 
 ## Key Derivation
 

@@ -9,6 +9,7 @@ from Crypto.Util import Counter
 from Crypto.Protocol.KDF import (
     scrypt as _scrypt,
     PBKDF2 as _PBKDF2,
+    HKDF as _HKDF,
 )
 from typing import Union
 
@@ -51,6 +52,11 @@ def PBKDF2(*, password: bytes, salt: bytes, iters: int=2048) -> bytes:
         count=iters,
         prf=lambda p, s: hmac_sha512(key=p, msg=s),
     )
+
+
+def hkdf(*, ikm: bytes, key_len: int, salt: str) -> bytes:
+    res = _HKDF(master=ikm, key_len=key_len, salt=salt, hashmod=_sha256)
+    return res if isinstance(res, bytes) else res[0]  # PyCryptodome can return Tuple[bytes]
 
 
 def AES(*, key: bytes, secret, iv: Union[bytes, str]) -> bytes:

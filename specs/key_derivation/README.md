@@ -12,7 +12,7 @@ One option is to avoid all of this work and just use the status quo. We can defi
 
 [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) is used as the Mnemonic generation mechanism by many projects in the Ethereum ecosystem. It specifies how to use a few bytes of entropy to create a recovery mnemonic and subsequently, how to use said mnemonic to derive a seed on top of which the entire key-tree can be built.
 
-BIP39 is a robust specification that is friendly to new curves and different coins. One way BIP39 can be enhanced is to use scrypt instead of PBKDF2 as the former provides memory-hardness and is therefore more resistant to ASICS, the specification of this new mnemonic generation strategy can be found [here](./mnemonic_generation.md)
+BIP39 is a robust specification that is friendly to new curves and different coins. One way BIP39 can be enhanced is to use scrypt instead of PBKDF2 as the former provides memory-hardness and is therefore more resistant to ASICS, the specification of this new mnemonic generation strategy can be found [here](./mnemonic.md)
 
 ## Tree KDF
 

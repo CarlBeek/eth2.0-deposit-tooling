@@ -25,8 +25,8 @@ def get_mnemonic(entropy: Optional[bytes]=None) -> str:
     if entropy is None:
         entropy = randbits(256).to_bytes(32, 'big')
     entropy_length = len(entropy) * 8
-    assert entropy_length in range(128, 257, 32)
-    checksum_length = (entropy_length // 32)
+    assert entropy_length == 256
+    checksum_length = 8
     checksum = int.from_bytes(sha256(entropy), 'big') >> 256 - checksum_length
     entropy_bits = int.from_bytes(entropy, 'big') << checksum_length
     entropy_bits += checksum

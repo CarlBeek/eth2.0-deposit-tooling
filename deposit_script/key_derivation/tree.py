@@ -1,25 +1,20 @@
-from utils.crypto import sha256
+from utils.crypto import hkdf
 from utils.bls import (
     bls_curve_order,
 )
 
 
-def int_to_int_hash(x: int) -> int:
-    while True:
-        hashed_int = sha256(x.to_bytes(32, byteorder='big'))
-        x = int.from_bytes(hashed_int, byteorder='big')
-        if x < bls_curve_order and x != 0:
-            return x
-
-
-def derive_child_privkey(k_par: int, i: int) -> int:
-    i_hash = int_to_int_hash(i)
-    k_hash = int_to_int_hash(k_par)
-    mod_sum = (i_hash + k_hash) % bls_curve_order
-    return mod_sum if i < 2**31 else int_to_int_hash(mod_sum)
+def bytes_to_privkey(ikm: bytes) -> int:
+    okm = hkdf(master=ikm, salt="BLS-SIG-KEYGEN-SALT-", key_len=48)
+    return int.from_bytes(okm, byteorder='big') % bls_curve_order
 
 
 def derive_master_privkey(seed: bytes) -> int:
-    assert len(seed) == 32
-    int_seed = int.from_bytes(seed, byteorder='big')
-    return int_to_int_hash(int_seed)
+    return bytes_to_privkey(seed)
+
+
+def derive_child_privkey(parent_privkey: int, i: int) -> int:
+    parent_hash = bytes_to_privkey(parent_privkey.to_bytes(length=32, byteorder='big'))
+    parent_double_hash = bytes_to_privkey(parent_hash.to_bytes(length=32, byteorder='big'))
+    mod_sum = (parent_hash + parent_double_hash + (i * parent_double_hash)) % bls_curve_order
+    return mod_sum if i < 2**31 else bytes_to_privkey(mod_sum.to_bytes(length=32, byteorder='big'))
