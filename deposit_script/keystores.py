@@ -5,7 +5,10 @@ from dataclasses import (
 )
 import json
 from secrets import randbits
-from utils.crypto import scrypt
+from utils.crypto import (
+    scrypt,
+    sha256,
+)
 from uuid import uuid4 as uuid
 
 hexdigits = set('0123456789abcdef')
@@ -31,6 +34,7 @@ class BytesDataclass:
 @dataclass
 class KeystoreCrypto(BytesDataclass):
     ciphertext: bytes
+    mac: bytes
     scryptparams: dict
 
 
@@ -55,6 +59,7 @@ class Keystore(BytesDataclass):
 class ScryptKeystore(Keystore):
     crypto = KeystoreCrypto(
         ciphertext=bytes(),
+        mac=bytes(),
         scryptparams={
             'dklen': 32,
             'n': 2**18,
@@ -66,8 +71,9 @@ class ScryptKeystore(Keystore):
     version = 4
 
     def __init__(self, *, secret: bytes, password: str):
-        self.id = str(uuid())
+        self.id = str(uuid())  # Generate a new uuid
         self.crypto.scryptparams['salt'] = randbits(256).to_bytes(32, 'big')
         cipher_salt = randbits(256).to_bytes(32, 'big')
         decryption_key = scrypt(password=password, **self.crypto.scryptparams)
+        self.crypto.mac = sha256(decryption_key)
         self.crypto.ciphertext = bytes(a ^ b for a, b in zip(decryption_key, cipher_salt))

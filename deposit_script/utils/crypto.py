@@ -6,7 +6,7 @@ from Crypto.Protocol.KDF import (
 
 
 def sha256(x):
-    return _sha256(x).digest()
+    return _sha256.new(x).digest()
 
 
 def scrypt(*, password: str, salt: str, n: int, r: int, p: int, dklen: int) -> bytes:
