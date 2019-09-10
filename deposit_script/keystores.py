@@ -2,6 +2,7 @@ from dataclasses import (
     dataclass,
     asdict,
     fields,
+    field as dataclass_field
 )
 import json
 from secrets import randbits
@@ -30,27 +31,41 @@ class BytesDataclass:
             if field.type in (dict, bytes):
                 self.__setattr__(field.name, to_bytes(self.__getattribute__(field.name)))
 
+    def as_json(self) -> str:
+        return json.dumps(asdict(self), default=lambda x: x.hex())
+
+
+@dataclass
+class KeystoreModule(BytesDataclass):
+    function: str
+    params: dict = dataclass_field(default_factory=dict)
+    message: bytes = bytes()
+
 
 @dataclass
 class KeystoreCrypto(BytesDataclass):
-    ciphertext: bytes
-    mac: bytes
-    scryptparams: dict
+    kdf: KeystoreModule
+    checksum: KeystoreModule
+    cipher: KeystoreModule
+
+    @classmethod
+    def from_json(cls, json_dict: dict):
+        kdf = KeystoreModule(**json_dict['kdf'])
+        checksum = KeystoreModule(**json_dict['checksum'])
+        cipher = KeystoreModule(**json_dict['cipher'])
+        return cls(kdf=kdf, checksum=checksum, cipher=cipher)
 
 
 @dataclass
 class Keystore(BytesDataclass):
     crypto: KeystoreCrypto
-    id: str
-    version: int
-
-    def as_json(self) -> str:
-        return json.dumps(asdict(self), default=lambda x: x.hex())
+    id: str = str(uuid())  # Generate a new uuid
+    version: int = 4
 
     @classmethod
     def from_json(cls, json_str: str):
         json_dict = json.loads(json_str)
-        crypto = KeystoreCrypto(**json_dict['crypto'])
+        crypto = KeystoreCrypto.from_json(json_dict['crypto'])
         id = json_dict['id']
         version = json_dict['version']
         return cls(crypto=crypto, id=id, version=version)
@@ -58,22 +73,26 @@ class Keystore(BytesDataclass):
 
 class ScryptKeystore(Keystore):
     crypto = KeystoreCrypto(
-        ciphertext=bytes(),
-        mac=bytes(),
-        scryptparams={
-            'dklen': 32,
-            'n': 2**18,
-            'r': 1,
-            'p': 8,
-        },
+        kdf=KeystoreModule(
+            function='scrypt',
+            params={
+                'dklen': 32,
+                'n': 2**18,
+                'r': 1,
+                'p': 8,
+            },
+        ),
+        checksum=KeystoreModule(
+            function='sha256',
+        ),
+        cipher=KeystoreModule(
+            function='xor',
+        )
     )
-    id = ''
-    version = 4
 
     def __init__(self, *, secret: bytes, password: str):
-        self.id = str(uuid())  # Generate a new uuid
-        self.crypto.scryptparams['salt'] = randbits(256).to_bytes(32, 'big')
+        self.crypto.kdf.params['salt'] = randbits(256).to_bytes(32, 'big')
         cipher_salt = randbits(256).to_bytes(32, 'big')
-        decryption_key = scrypt(password=password, **self.crypto.scryptparams)
-        self.crypto.mac = sha256(decryption_key)
-        self.crypto.ciphertext = bytes(a ^ b for a, b in zip(decryption_key, cipher_salt))
+        decryption_key = scrypt(password=password, **self.crypto.kdf.params)
+        self.crypto.checksum.message = sha256(decryption_key)
+        self.crypto.cipher.message = bytes(a ^ b for a, b in zip(decryption_key, cipher_salt))
