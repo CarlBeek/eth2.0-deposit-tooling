@@ -71,7 +71,7 @@ class Keystore(BytesDataclass):
         return cls(crypto=crypto, id=id, version=version)
 
 
-class ScryptKeystore(Keystore):
+class ScryptXorKeystore(Keystore):
     crypto = KeystoreCrypto(
         kdf=KeystoreModule(
             function='scrypt',
@@ -90,9 +90,17 @@ class ScryptKeystore(Keystore):
         )
     )
 
-    def __init__(self, *, secret: bytes, password: str):
-        self.crypto.kdf.params['salt'] = randbits(256).to_bytes(32, 'big')
+    @classmethod
+    def encrypt(cls, *, secret: bytes, password: str):
+        keystore = cls()
+        keystore.crypto.kdf.params['salt'] = randbits(256).to_bytes(32, 'big')
         cipher_salt = randbits(256).to_bytes(32, 'big')
+        decryption_key = scrypt(password=password, **keystore.crypto.kdf.params)
+        keystore.crypto.cipher.message = bytes(a ^ b for a, b in zip(decryption_key, cipher_salt))
+        keystore.crypto.checksum.message = sha256(decryption_key[16:32] + keystore.crypto.cipher.message)
+        return keystore
+
+    def decrypt(self, password: str) -> bytes:
         decryption_key = scrypt(password=password, **self.crypto.kdf.params)
-        self.crypto.checksum.message = sha256(decryption_key)
-        self.crypto.cipher.message = bytes(a ^ b for a, b in zip(decryption_key, cipher_salt))
+        assert sha256(decryption_key[16:32] + self.crypto.cipher.message) == self.crypto.checksum.message
+        return bytes(a ^ b for a, b in zip(decryption_key, self.crypto.cipher.message))

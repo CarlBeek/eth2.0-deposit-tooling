@@ -1,43 +1,51 @@
 from keystores import (
     Keystore,
-    ScryptKeystore,
 )
 
 from json import loads
 
 #  Test vector from Eth Wiki: https://github.com/ethereum/wiki/wiki/Web3-Secret-Storage-Definition#scrypt
 test_password = 'testpassword'
-test_secret = bytes.fromhex("7a28b5ba57c53603b0b07b56bba752f7784bf506fa95edc395f5cf6c7514fe9d")
+test_secret = bytes.fromhex('1b4b68192611faea208fca21627be9dae6c3f2564d42588fb1119dae7c9f4b87')
 test_keystore_json = '''
 {
-    "crypto" : {
-        "cipher" : "aes-128-ctr",
-        "cipherparams" : {
-            "iv" : "83dbcc02d8ccb40e466191a123791e0e"
+    "crypto": {
+        "kdf": {
+            "function": "scrypt",
+            "params": {
+                "dklen": 32,
+                "n": 262144,
+                "p": 8,
+                "r": 1,
+                "salt": "ab0c7876052600dd703518d6fc3fe8984592145b591fc8fb5c6d43190334ba19"
+            },
+            "message": ""
         },
-        "ciphertext" : "d172bf743a674da9cdad04534d56926ef8358534d458fffccd4e6ad2fbde479c",
-        "kdf" : "scrypt",
-        "kdfparams" : {
-            "dklen" : 32,
-            "n" : 262144,
-            "r" : 1,
-            "p" : 8,
-            "salt" : "ab0c7876052600dd703518d6fc3fe8984592145b591fc8fb5c6d43190334ba19"
+        "checksum": {
+            "function": "sha256",
+            "params": {},
+            "message": "e1c5e3d08f8aec999df5287dd9f2b0aafdaa86d263ca6287e2bd1c6b20c19c0f"
         },
-        "mac" : "2103ac29920d71da29f15d75b4a16dbe95cfd7ff8faea1056c33131d846e3097"
+        "cipher": {
+            "function": "xor",
+            "params": {},
+            "message": "e18afad793ec8dc3263169c07add77515d9f301464a05508d7ecb42ced24ed3a"
+        }
     },
-    "id" : "3198bc9c-6672-5ab3-d995-4942343ae5b6",
-    "version" : 3
+    "id": "e5e79c63-b6bc-49f2-a4f8-f0dcea550ff6",
+    "version": 4
 }'''
 
 
+def get_keystore_test_vector() -> Keystore:
+    return Keystore.from_json(test_keystore_json)
+
+
 def test_json_serialization():
-    keystore = Keystore.from_json(test_keystore_json)
+    keystore = get_keystore_test_vector()
     assert loads(keystore.as_json()) == loads(test_keystore_json)
 
 
-def test_mac():
-    iv = loads(test_keystore_json)['crypto']['cipherparams']['iv']
-    salt = loads(test_keystore_json)['crypto']['kdfparams']['salt']
-    keystore = ScryptKeystore(secret=test_secret, password=test_password, salt=salt, iv=iv)
-    assert keystore.crypto.mac == Keystore.from_json(test_keystore_json).crypto.mac
+def test_sha256_checksum():
+    keystore = get_keystore_test_vector()
+    assert keystore.crypto.checksum.message == Keystore.from_json(test_keystore_json).crypto.checksum.message
