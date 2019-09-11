@@ -6,11 +6,12 @@ from dataclasses import (
 )
 import json
 from secrets import randbits
+from uuid import uuid4 as uuid
+from typing import Optional
 from utils.crypto import (
     scrypt,
     sha256,
 )
-from uuid import uuid4 as uuid
 
 hexdigits = set('0123456789abcdef')
 
@@ -37,16 +38,16 @@ class BytesDataclass:
 
 @dataclass
 class KeystoreModule(BytesDataclass):
-    function: str
+    function: str = ''
     params: dict = dataclass_field(default_factory=dict)
     message: bytes = bytes()
 
 
 @dataclass
 class KeystoreCrypto(BytesDataclass):
-    kdf: KeystoreModule
-    checksum: KeystoreModule
-    cipher: KeystoreModule
+    kdf: KeystoreModule = KeystoreModule()
+    checksum: KeystoreModule = KeystoreModule()
+    cipher: KeystoreModule = KeystoreModule()
 
     @classmethod
     def from_json(cls, json_dict: dict):
@@ -58,7 +59,7 @@ class KeystoreCrypto(BytesDataclass):
 
 @dataclass
 class Keystore(BytesDataclass):
-    crypto: KeystoreCrypto
+    crypto: KeystoreCrypto = KeystoreCrypto()
     id: str = str(uuid())  # Generate a new uuid
     version: int = 4
 
@@ -71,8 +72,9 @@ class Keystore(BytesDataclass):
         return cls(crypto=crypto, id=id, version=version)
 
 
+@dataclass
 class ScryptXorKeystore(Keystore):
-    crypto = KeystoreCrypto(
+    crypto: KeystoreCrypto = KeystoreCrypto(
         kdf=KeystoreModule(
             function='scrypt',
             params={
@@ -91,12 +93,16 @@ class ScryptXorKeystore(Keystore):
     )
 
     @classmethod
-    def encrypt(cls, *, secret: bytes, password: str):
+    def encrypt(cls, *, secret: bytes, password: str, kdf_salt: Optional[bytes]=None, cipher_msg: Optional[bytes]=None):
         keystore = cls()
-        keystore.crypto.kdf.params['salt'] = randbits(256).to_bytes(32, 'big')
-        cipher_salt = randbits(256).to_bytes(32, 'big')
+        keystore.crypto.kdf.params['salt'] = randbits(256).to_bytes(32, 'big') if kdf_salt is None else kdf_salt
         decryption_key = scrypt(password=password, **keystore.crypto.kdf.params)
-        keystore.crypto.cipher.message = bytes(a ^ b for a, b in zip(decryption_key, cipher_salt))
+        if cipher_msg is None:
+            cipher_salt = randbits(256).to_bytes(32, 'big')
+            keystore.crypto.cipher.message = bytes(a ^ b for a, b in zip(decryption_key, cipher_salt))
+        else:
+            assert secret == bytes(a ^ b for a, b in zip(decryption_key, cipher_msg))
+            keystore.crypto.cipher.message = cipher_msg
         keystore.crypto.checksum.message = sha256(decryption_key[16:32] + keystore.crypto.cipher.message)
         return keystore
 

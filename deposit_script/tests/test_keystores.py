@@ -1,5 +1,6 @@
 from keystores import (
     Keystore,
+    ScryptXorKeystore,
 )
 
 from json import loads
@@ -24,7 +25,7 @@ test_keystore_json = '''
         "checksum": {
             "function": "sha256",
             "params": {},
-            "message": "e1c5e3d08f8aec999df5287dd9f2b0aafdaa86d263ca6287e2bd1c6b20c19c0f"
+            "message": "cb27fe860c96f269f7838525ba8dce0886e0b7753caccc14162195bcdacbf49e"
         },
         "cipher": {
             "function": "xor",
@@ -35,17 +36,22 @@ test_keystore_json = '''
     "id": "e5e79c63-b6bc-49f2-a4f8-f0dcea550ff6",
     "version": 4
 }'''
+test_keystore = Keystore.from_json(test_keystore_json)
 
 
-def get_keystore_test_vector() -> Keystore:
-    return Keystore.from_json(test_keystore_json)
+def generate_keystore() -> ScryptXorKeystore:
+    return ScryptXorKeystore.encrypt(
+        secret=test_secret,
+        password=test_password,
+        kdf_salt=test_keystore.crypto.kdf.params['salt'],
+        cipher_msg=test_keystore.crypto.cipher.message,
+    )
 
 
 def test_json_serialization():
-    keystore = get_keystore_test_vector()
-    assert loads(keystore.as_json()) == loads(test_keystore_json)
+    assert loads(test_keystore.as_json()) == loads(test_keystore_json)
 
 
 def test_sha256_checksum():
-    keystore = get_keystore_test_vector()
-    assert keystore.crypto.checksum.message == Keystore.from_json(test_keystore_json).crypto.checksum.message
+    generated_keystore = generate_keystore()
+    assert test_keystore.crypto.checksum.message == generated_keystore.crypto.checksum.message
