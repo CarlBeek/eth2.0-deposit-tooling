@@ -67,3 +67,8 @@ def test_cipher():
     generated_keystore = generate_keystore()
     decryption_key = scrypt(password=test_vector_password, **test_vector_keystore.crypto.kdf.params)
     assert test_vector_secret == bytes(a ^ b for a, b in zip(decryption_key, generated_keystore.crypto.cipher.message))
+
+
+def test_encrypt_decrypt():
+    generated_keystore = generate_keystore()
+    assert generated_keystore.decrypt(test_vector_password) == test_vector_secret
