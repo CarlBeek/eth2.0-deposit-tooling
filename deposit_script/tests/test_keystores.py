@@ -40,7 +40,12 @@ test_vector_keystore_json = '''
 test_vector_keystore = Keystore.from_json(test_vector_keystore_json)
 
 
-def generate_keystore() -> ScryptXorKeystore:
+def generate_keystore(use_test_vector_params: bool=True) -> ScryptXorKeystore:
+    if not use_test_vector_params:
+        return ScryptXorKeystore.encrypt(
+            secret=test_vector_secret,
+            password=test_vector_password,
+        )
     return ScryptXorKeystore.encrypt(
         secret=test_vector_secret,
         password=test_vector_password,
@@ -70,5 +75,5 @@ def test_cipher():
 
 
 def test_encrypt_decrypt():
-    generated_keystore = generate_keystore()
+    generated_keystore = generate_keystore(use_test_vector_params=False)
     assert generated_keystore.decrypt(test_vector_password) == test_vector_secret

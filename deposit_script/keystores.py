@@ -98,8 +98,7 @@ class ScryptXorKeystore(Keystore):
         keystore.crypto.kdf.params['salt'] = randbits(256).to_bytes(32, 'big') if kdf_salt is None else kdf_salt
         decryption_key = scrypt(password=password, **keystore.crypto.kdf.params)
         if cipher_msg is None:
-            cipher_salt = randbits(256).to_bytes(32, 'big')
-            keystore.crypto.cipher.message = bytes(a ^ b for a, b in zip(decryption_key, cipher_salt))
+            keystore.crypto.cipher.message = bytes(a ^ b for a, b in zip(decryption_key, secret))
         else:
             assert secret == bytes(a ^ b for a, b in zip(decryption_key, cipher_msg))
             keystore.crypto.cipher.message = cipher_msg
