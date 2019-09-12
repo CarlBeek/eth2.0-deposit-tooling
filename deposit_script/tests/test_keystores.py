@@ -2,13 +2,14 @@ from keystores import (
     Keystore,
     ScryptXorKeystore,
 )
+from utils.crypto import scrypt
 
 from json import loads
 
-#  Test vector from Eth Wiki: https://github.com/ethereum/wiki/wiki/Web3-Secret-Storage-Definition#scrypt
-test_password = 'testpassword'
-test_secret = bytes.fromhex('1b4b68192611faea208fca21627be9dae6c3f2564d42588fb1119dae7c9f4b87')
-test_keystore_json = '''
+test_vector_password = 'testpassword'
+test_vector_secret = bytes.fromhex('1b4b68192611faea208fca21627be9dae6c3f2564d42588fb1119dae7c9f4b87')
+test_vector_decryption_key = bytes.fromhex('fac192ceb5fd772906bea3e118a69e8bbb5cc24229e20d8766fd298291bba6bd')
+test_vector_keystore_json = '''
 {
     "crypto": {
         "kdf": {
@@ -36,22 +37,33 @@ test_keystore_json = '''
     "id": "e5e79c63-b6bc-49f2-a4f8-f0dcea550ff6",
     "version": 4
 }'''
-test_keystore = Keystore.from_json(test_keystore_json)
+test_vector_keystore = Keystore.from_json(test_vector_keystore_json)
 
 
 def generate_keystore() -> ScryptXorKeystore:
     return ScryptXorKeystore.encrypt(
-        secret=test_secret,
-        password=test_password,
-        kdf_salt=test_keystore.crypto.kdf.params['salt'],
-        cipher_msg=test_keystore.crypto.cipher.message,
+        secret=test_vector_secret,
+        password=test_vector_password,
+        kdf_salt=test_vector_keystore.crypto.kdf.params['salt'],
+        cipher_msg=test_vector_keystore.crypto.cipher.message,
     )
 
 
 def test_json_serialization():
-    assert loads(test_keystore.as_json()) == loads(test_keystore_json)
+    assert loads(test_vector_keystore.as_json()) == loads(test_vector_keystore_json)
 
 
 def test_sha256_checksum():
     generated_keystore = generate_keystore()
-    assert test_keystore.crypto.checksum.message == generated_keystore.crypto.checksum.message
+    assert test_vector_keystore.crypto.checksum.message == generated_keystore.crypto.checksum.message
+
+
+def test_decryption_key():
+    decryption_key = scrypt(password=test_vector_password, **test_vector_keystore.crypto.kdf.params)
+    assert decryption_key == test_vector_decryption_key
+
+
+def test_cipher():
+    generated_keystore = generate_keystore()
+    decryption_key = scrypt(password=test_vector_password, **test_vector_keystore.crypto.kdf.params)
+    assert test_vector_secret == bytes(a ^ b for a, b in zip(decryption_key, generated_keystore.crypto.cipher.message))
