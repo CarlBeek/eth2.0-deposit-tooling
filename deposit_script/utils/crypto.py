@@ -15,5 +15,5 @@ def scrypt(*, password: str, salt: str, n: int, r: int, p: int, dklen: int) -> b
 
 
 def hkdf(*, master: bytes, key_len: int, salt: bytes) -> bytes:
-    res = _HKDF(master=bytes, key_len=key_len, salt=salt, hashmod=_sha256)
+    res = _HKDF(master=master, key_len=key_len, salt=salt, hashmod=_sha256)
     return res if isinstance(res, bytes) else res[0]  # PyCryptodome can return Tuple[bytes]
