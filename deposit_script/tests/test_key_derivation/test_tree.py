@@ -1,9 +1,7 @@
 from key_derivation.tree import (
     flip_bits,
     seed_to_lamport_keys,
-    parent_privkey_to_lamport_root,
     hkdf_mod_r,
-    derive_child_privkey,
     derive_master_privkey,
 )
 from json import load
@@ -31,3 +29,10 @@ def test_hkdf_mod_r():
     test_hkdf_ikm = bytes.fromhex(test_vector['compressed_lamport_pubkey'])
     test_result = test_vector['bls_privkey']
     assert hkdf_mod_r(test_hkdf_ikm) == test_result
+
+
+def test_derive_master_privkey():
+    # Note: this implicitly tests parent_privkey_to_lamport_root and derive_child_privkey
+    test_seed = bytes.fromhex(test_vector['seed'])
+    test_bls_privkey = test_vector['bls_privkey']
+    assert derive_master_privkey(test_seed) == test_bls_privkey
