@@ -2,7 +2,7 @@ from unicodedata import normalize
 from typing import Optional
 from secrets import randbits
 from utils.crypto import (
-    scrypt,
+    pbkdf2,
     sha256,
 )
 
@@ -18,15 +18,15 @@ def get_word(index: int) -> str:
 def get_seed(*, mnemonic: str, password: str='') -> bytes:
     mnemonic = normalize('NFKD', mnemonic)
     password = normalize('NFKD', 'mnemonic' + password)
-    return scrypt(password=mnemonic, salt=password, n=2**18, r=1, p=8, dklen=32)
+    return pbkdf2(password=mnemonic, salt=password, dklen=64, count=2048)
 
 
 def get_mnemonic(entropy: Optional[bytes]=None) -> str:
     if entropy is None:
         entropy = randbits(256).to_bytes(32, 'big')
     entropy_length = len(entropy) * 8
-    assert entropy_length == 256
-    checksum_length = 8
+    assert entropy_length in range(128, 257, 32)
+    checksum_length = (entropy_length // 32)
     checksum = int.from_bytes(sha256(entropy), 'big') >> 256 - checksum_length
     entropy_bits = int.from_bytes(entropy, 'big') << checksum_length
     entropy_bits += checksum
