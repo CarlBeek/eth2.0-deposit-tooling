@@ -1,11 +1,11 @@
-from utils.crypto import sha256
+from utils.crypto import SHA256
 from utils.constants import ZERO_BYTES32
 from math import log2
 
 
 zerohashes = [ZERO_BYTES32]
 for layer in range(1, 100):
-    zerohashes.append(sha256(zerohashes[layer - 1] + zerohashes[layer - 1]))
+    zerohashes.append(SHA256(zerohashes[layer - 1] + zerohashes[layer - 1]))
 
 
 def calc_merkle_tree_from_leaves(values, layer_count: int=32):
@@ -14,7 +14,7 @@ def calc_merkle_tree_from_leaves(values, layer_count: int=32):
     for h in range(layer_count):
         if len(values) % 2 == 1:
             values.append(zerohashes[h])
-        values = [sha256(values[i] + values[i + 1]) for i in range(0, len(values), 2)]
+        values = [SHA256(values[i] + values[i + 1]) for i in range(0, len(values), 2)]
         tree.append(values[::])
     return tree
 
@@ -45,11 +45,11 @@ def merkleize_chunks(chunks, pad_to: int=1):
         while True:
             if i & (1 << j) == 0:
                 if i == count and j < depth:
-                    h = sha256(h + zerohashes[j])  # keep going if we are complementing the void to the next power of 2
+                    h = SHA256(h + zerohashes[j])  # keep going if we are complementing the void to the next power of 2
                 else:
                     break
             else:
-                h = sha256(tmp[j] + h)
+                h = SHA256(tmp[j] + h)
             j += 1
         tmp[j] = h
 
@@ -63,6 +63,6 @@ def merkleize_chunks(chunks, pad_to: int=1):
 
     # the next power of two may be smaller than the ultimate virtual size, complement with zero-hashes at each depth.
     for j in range(depth, max_depth):
-        tmp[j + 1] = sha256(tmp[j] + zerohashes[j])
+        tmp[j + 1] = SHA256(tmp[j] + zerohashes[j])
 
     return tmp[max_depth]

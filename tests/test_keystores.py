@@ -24,7 +24,7 @@ test_vector_keystore_json = '''
             "message": ""
         },
         "checksum": {
-            "function": "sha256",
+            "function": "SHA256",
             "params": {},
             "message": "cb27fe860c96f269f7838525ba8dce0886e0b7753caccc14162195bcdacbf49e"
         },
@@ -58,7 +58,7 @@ def test_json_serialization():
     assert loads(test_vector_keystore.as_json()) == loads(test_vector_keystore_json)
 
 
-def test_sha256_checksum():
+def test_SHA256_checksum():
     generated_keystore = generate_keystore()
     assert test_vector_keystore.crypto.checksum.message == generated_keystore.crypto.checksum.message
 

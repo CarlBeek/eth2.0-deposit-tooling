@@ -9,7 +9,7 @@ from Crypto.Protocol.KDF import (
 )
 
 
-def sha256(x):
+def SHA256(x):
     return _sha256.new(x).digest()
 
 
@@ -18,11 +18,11 @@ def scrypt(*, password: str, salt: str, n: int, r: int, p: int, dklen: int) -> b
     return res if isinstance(res, bytes) else res[0]  # PyCryptodome can return Tuple[bytes]
 
 
-def pbkdf2(*, password: str, salt: str, dklen: int, count: int) -> bytes:
+def PBKDF2(*, password: str, salt: bytes, dklen: int, count: int) -> bytes:
     res = _PBKDF2(password=password, salt=salt, dkLen=dklen, count=count, hmac_hash_module=_sha512)
     return res if isinstance(res, bytes) else res[0]  # PyCryptodome can return Tuple[bytes]
 
 
-def hkdf(*, master: bytes, key_len: int, salt: bytes) -> bytes:
-    res = _HKDF(master=master, key_len=key_len, salt=salt, hashmod=_sha256)
+def HKDF(*, salt: bytes, IKM: bytes, L: int) -> bytes:
+    res = _HKDF(master=IKM, key_len=L, salt=salt, hashmod=_sha256)
     return res if isinstance(res, bytes) else res[0]  # PyCryptodome can return Tuple[bytes]

@@ -10,7 +10,7 @@ from uuid import uuid4 as uuid
 from typing import Optional
 from utils.crypto import (
     scrypt,
-    sha256,
+    SHA256,
 )
 
 hexdigits = set('0123456789abcdef')
@@ -85,7 +85,7 @@ class ScryptXorKeystore(Keystore):
             },
         ),
         checksum=KeystoreModule(
-            function='sha256',
+            function='SHA256',
         ),
         cipher=KeystoreModule(
             function='xor',
@@ -102,10 +102,10 @@ class ScryptXorKeystore(Keystore):
         else:
             assert secret == bytes(a ^ b for a, b in zip(decryption_key, cipher_msg))
             keystore.crypto.cipher.message = cipher_msg
-        keystore.crypto.checksum.message = sha256(decryption_key[16:32] + keystore.crypto.cipher.message)
+        keystore.crypto.checksum.message = SHA256(decryption_key[16:32] + keystore.crypto.cipher.message)
         return keystore
 
     def decrypt(self, password: str) -> bytes:
         decryption_key = scrypt(password=password, **self.crypto.kdf.params)
-        assert sha256(decryption_key[16:32] + self.crypto.cipher.message) == self.crypto.checksum.message
+        assert SHA256(decryption_key[16:32] + self.crypto.cipher.message) == self.crypto.checksum.message
         return bytes(a ^ b for a, b in zip(decryption_key, self.crypto.cipher.message))
