@@ -4,7 +4,7 @@ from key_derivation.mnemonic import (
     get_mnemonic,
 )
 
-with open('tests/test_key_derivation/mnemonic_test_vectors.json', 'r') as f:
+with open('tests/test_key_derivation/test_vectors/mnemonic.json', 'r') as f:
     test_vectors = load(f)['english']
 
 
