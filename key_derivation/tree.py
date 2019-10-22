@@ -39,6 +39,4 @@ def derive_child_SK(*, parent_SK: int, index: int) -> int:
 
 
 def derive_master_SK(seed: bytes) -> int:
-    intermediate_SK = HKDF_mod_r(IKM=seed)
-    SK = derive_child_SK(parent_SK=intermediate_SK, index=0)
-    return SK
+    return HKDF_mod_r(IKM=seed)
