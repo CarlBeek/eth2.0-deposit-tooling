@@ -61,7 +61,7 @@ class KeystoreCrypto(BytesDataclass):
 class Keystore(BytesDataclass):
     crypto: KeystoreCrypto = KeystoreCrypto()
     id: str = str(uuid())  # Generate a new uuid
-    version: int = 4
+    version: int = 0
 
     @classmethod
     def from_json(cls, json_str: str):

@@ -35,7 +35,7 @@ test_vector_keystore_json = '''
         }
     },
     "id": "e5e79c63-b6bc-49f2-a4f8-f0dcea550ff6",
-    "version": 4
+    "version": 0
 }'''
 test_vector_keystore = Keystore.from_json(test_vector_keystore_json)
 
