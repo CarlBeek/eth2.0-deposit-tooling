@@ -1,5 +1,5 @@
 import abc
-from keystores import ScryptXorKeystore
+from keystores import ScryptKeystore
 from utils.typing import (
     BLSPubkey,
     BLSPrivkey,
@@ -36,6 +36,6 @@ class PythonSigner(BLSSigner):
     def pubkey(self) -> BLSPubkey:
         return bls_priv_to_pub(self.privkey)
 
-    def as_keystore(self, *, password: str) -> ScryptXorKeystore:
+    def as_keystore(self, *, password: str) -> ScryptKeystore:
         secret = self.privkey.to_bytes(length=32, byteorder='big')
-        return ScryptXorKeystore.encrypt(secret=secret, password=password)
+        return ScryptKeystore.encrypt(secret=secret, password=password)

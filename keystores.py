@@ -9,6 +9,7 @@ from secrets import randbits
 from uuid import uuid4 as uuid
 from typing import Optional
 from utils.crypto import (
+    PBKDF2,
     scrypt,
     SHA256,
 )
@@ -73,7 +74,45 @@ class Keystore(BytesDataclass):
 
 
 @dataclass
-class ScryptXorKeystore(Keystore):
+class Pbkdf2Keystore(Keystore):
+    crypto: KeystoreCrypto = KeystoreCrypto(
+        kdf=KeystoreModule(
+            function='pbkdf2',
+            params={
+                'c': 262144,
+                'dklen': 32,
+                "prf": 'hmac-sha256'
+            },
+        ),
+        checksum=KeystoreModule(
+            function='SHA256',
+        ),
+        cipher=KeystoreModule(
+            function='aes-128-ctr',
+        )
+    )
+
+    @classmethod
+    def encrypt(cls, *, secret: bytes, password: str, kdf_salt: Optional[bytes]=None, cipher_msg: Optional[bytes]=None):
+        keystore = cls()
+        keystore.crypto.kdf.params['salt'] = randbits(256).to_bytes(32, 'big') if kdf_salt is None else kdf_salt
+        decryption_key = PBKDF2(password=password, **keystore.crypto.kdf.params)
+        if cipher_msg is None:
+            keystore.crypto.cipher.message = bytes(a ^ b for a, b in zip(decryption_key, secret))
+        else:
+            assert secret == bytes(a ^ b for a, b in zip(decryption_key, cipher_msg))
+            keystore.crypto.cipher.message = cipher_msg
+        keystore.crypto.checksum.message = SHA256(decryption_key[16:32] + keystore.crypto.cipher.message)
+        return keystore
+
+    def decrypt(self, password: str) -> bytes:
+        decryption_key = PBKDF2(password=password, **self.crypto.kdf.params)
+        assert SHA256(decryption_key[16:32] + self.crypto.cipher.message) == self.crypto.checksum.message
+        return bytes(a ^ b for a, b in zip(decryption_key, self.crypto.cipher.message))
+
+
+@dataclass
+class ScryptKeystore(Keystore):
     crypto: KeystoreCrypto = KeystoreCrypto(
         kdf=KeystoreModule(
             function='scrypt',
@@ -88,7 +127,7 @@ class ScryptXorKeystore(Keystore):
             function='SHA256',
         ),
         cipher=KeystoreModule(
-            function='xor',
+            function='aes-128-ctr',
         )
     )
 

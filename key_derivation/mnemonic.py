@@ -18,7 +18,7 @@ def get_word(index: int) -> str:
 def get_seed(*, mnemonic: str, password: str='') -> bytes:
     mnemonic = normalize('NFKD', mnemonic)
     salt = normalize('NFKD', 'mnemonic' + password).encode('utf-8')
-    return PBKDF2(password=mnemonic, salt=salt, dklen=64, count=2048)
+    return PBKDF2(password=mnemonic, salt=salt, dklen=64, c=2048, prf='sha512')
 
 
 def get_mnemonic(entropy: Optional[bytes]=None) -> str:

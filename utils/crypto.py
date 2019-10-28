@@ -1,3 +1,4 @@
+from typing import Optional
 from Crypto.Hash import (
     SHA256 as _sha256,
     SHA512 as _sha512,
@@ -18,8 +19,10 @@ def scrypt(*, password: str, salt: str, n: int, r: int, p: int, dklen: int) -> b
     return res if isinstance(res, bytes) else res[0]  # PyCryptodome can return Tuple[bytes]
 
 
-def PBKDF2(*, password: str, salt: bytes, dklen: int, count: int) -> bytes:
-    res = _PBKDF2(password=password, salt=salt, dkLen=dklen, count=count, hmac_hash_module=_sha512)
+def PBKDF2(*, password: str, salt: bytes, dklen: int, c: int, prf: str) -> bytes:
+    assert('sha' in prf)
+    _hash = _sha256 if 'sha256' in prf else _sha512
+    res = _PBKDF2(password=password, salt=salt, dkLen=dklen, count=c, hmac_hash_module=_hash)
     return res if isinstance(res, bytes) else res[0]  # PyCryptodome can return Tuple[bytes]
 
 
