@@ -7,7 +7,7 @@ from keystores import (
 from json import loads
 
 test_vector_password = 'testpassword'
-test_vector_secret = bytes.fromhex('7a28b5ba57c53603b0b07b56bba752f7784bf506fa95edc395f5cf6c7514fe9d')
+test_vector_secret = bytes.fromhex('000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f')
 test_vector_keystores_json = [
     '''
     {
@@ -18,24 +18,24 @@ test_vector_keystores_json = [
                     "dklen": 32,
                     "c": 262144,
                     "prf": "hmac-sha256",
-                    "salt": "ae3cd4e7013836a3df6bd7241b12db061dbe2c6785853cce422d148a624ce0bd"
+                    "salt": "d4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3"
                 },
                 "message": ""
             },
             "checksum": {
-                "function": "SHA256",
+                "function": "sha256",
                 "params": {},
-                "message": "6f53cc6a1be57c225d1234c4c99b32ad1925f4c40fdd7c8a265b8e4705e773d0"
+                "message": "18b148af8e52920318084560fd766f9d09587b4915258dec0676cba5b0da09d8"
             },
             "cipher": {
                 "function": "aes-128-ctr",
                 "params": {
-                    "iv": "6087dab2f9fdbbfaddc31a909735c1e6"
+                    "iv": "264daa3f303d7259501c93d997d84fe6"
                 },
-                "message": "5318b4d5bcd28de64ee5559e671353e16f075ecae9f99c7a79a38af5f869aa46"
+                "message": "a9249e0ca7315836356e4c7440361ff22b9fe71e2e2ed34fc1eb03976924ed48"
             }
         },
-        "id": "3198bc9c-6672-5ab3-d995-4942343ae5b6",
+        "id": "64625def-3331-4eea-ab6f-782f3ed16a83",
         "version": 0
     }''',
     '''
@@ -48,24 +48,24 @@ test_vector_keystores_json = [
                     "n": 262144,
                     "p": 8,
                     "r": 1,
-                    "salt": "ab0c7876052600dd703518d6fc3fe8984592145b591fc8fb5c6d43190334ba19"
+                    "salt": "d4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3"
                 },
                 "message": ""
             },
             "checksum": {
-                "function": "SHA256",
+                "function": "sha256",
                 "params": {},
-                "message": "7afc1ac901ee46cb8d9a720fe2389dbc47edbe1534f6dacb5da80f2964b61a3f"
+                "message": "1849171bf8f79c576ddf860e6a3aee875bb82e564b22f8cea2e769235f88e2c0"
             },
             "cipher": {
                 "function": "aes-128-ctr",
                 "params": {
-                    "iv": "83dbcc02d8ccb40e466191a123791e0e"
+                    "iv": "264daa3f303d7259501c93d997d84fe6"
                 },
-                "message": "d172bf743a674da9cdad04534d56926ef8358534d458fffccd4e6ad2fbde479c"
+                "message": "c986b2963fadbd10c3280c27377173a5857c4e5262c517e4bad2deca2e3ff7c3"
             }
         },
-        "id": "3198bc9c-6672-5ab3-d995-4942343ae5b6",
+        "id": "1d85ae20-35c5-4611-98e8-aa14a633906f",
         "version": 0
     }''']
 test_vector_keystores = [Keystore.from_json(x) for x in test_vector_keystores_json]

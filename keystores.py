@@ -106,7 +106,7 @@ class Pbkdf2Keystore(Keystore):
             },
         ),
         checksum=KeystoreModule(
-            function='SHA256',
+            function='sha256',
         ),
         cipher=KeystoreModule(
             function='aes-128-ctr',
@@ -127,7 +127,7 @@ class ScryptKeystore(Keystore):
             },
         ),
         checksum=KeystoreModule(
-            function='SHA256',
+            function='sha256',
         ),
         cipher=KeystoreModule(
             function='aes-128-ctr',
