@@ -1,6 +1,6 @@
 from dataclasses import (
-    dataclass,
     asdict,
+    dataclass,
     fields,
     field as dataclass_field
 )
@@ -65,6 +65,9 @@ class Keystore(BytesDataclass):
     id: str = str(uuid())  # Generate a new uuid
     version: int = 0
 
+    def kdf(self, **kwargs):
+        return scrypt(**kwargs) if 'scrypt' in self.crypto.kdf.function else PBKDF2(**kwargs)
+
     @classmethod
     def from_json(cls, json_str: str):
         json_dict = json.loads(json_str)
@@ -72,6 +75,23 @@ class Keystore(BytesDataclass):
         id = json_dict['id']
         version = json_dict['version']
         return cls(crypto=crypto, id=id, version=version)
+
+    @classmethod
+    def encrypt(cls, *, secret: bytes, password: str, kdf_salt: Optional[bytes]=None, aes_iv: Optional[bytes]=None):
+        keystore = cls()
+        keystore.crypto.kdf.params['salt'] = randbits(256).to_bytes(32, 'big') if kdf_salt is None else kdf_salt
+        decryption_key = keystore.kdf(password=password, **keystore.crypto.kdf.params)
+        keystore.crypto.cipher.params['iv'] = randbits(128).to_bytes(16, 'big') if aes_iv is None else aes_iv
+        cipher = AES_128_CTR(key=decryption_key[:16], **keystore.crypto.cipher.params)
+        keystore.crypto.cipher.message = cipher.encrypt(secret)
+        keystore.crypto.checksum.message = SHA256(decryption_key[16:32] + keystore.crypto.cipher.message)
+        return keystore
+
+    def decrypt(self, password: str) -> bytes:
+        decryption_key = self.kdf(password=password, **self.crypto.kdf.params)
+        assert SHA256(decryption_key[16:32] + self.crypto.cipher.message) == self.crypto.checksum.message
+        cipher = AES_128_CTR(key=decryption_key[:16], **self.crypto.cipher.params)
+        return cipher.decrypt(self.crypto.cipher.message)
 
 
 @dataclass
@@ -93,23 +113,6 @@ class Pbkdf2Keystore(Keystore):
         )
     )
 
-    @classmethod
-    def encrypt(cls, *, secret: bytes, password: str, kdf_salt: Optional[bytes]=None, aes_iv: Optional[bytes]=None):
-        keystore = cls()
-        keystore.crypto.kdf.params['salt'] = randbits(256).to_bytes(32, 'big') if kdf_salt is None else kdf_salt
-        decryption_key = PBKDF2(password=password, **keystore.crypto.kdf.params)
-        keystore.crypto.cipher.params['iv'] = randbits(128).to_bytes(16, 'big') if aes_iv is None else aes_iv
-        cipher = AES_128_CTR(key=decryption_key[:16], **keystore.crypto.cipher.params)
-        keystore.crypto.cipher.message = cipher.encrypt(secret)
-        keystore.crypto.checksum.message = SHA256(decryption_key[16:32] + keystore.crypto.cipher.message)
-        return keystore
-
-    def decrypt(self, password: str) -> bytes:
-        decryption_key = PBKDF2(password=password, **self.crypto.kdf.params)
-        assert SHA256(decryption_key[16:32] + self.crypto.cipher.message) == self.crypto.checksum.message
-        cipher = AES_128_CTR(key=decryption_key[:16], **self.crypto.cipher.params)
-        return cipher.decrypt(self.crypto.cipher.message)
-
 
 @dataclass
 class ScryptKeystore(Keystore):
@@ -130,20 +133,3 @@ class ScryptKeystore(Keystore):
             function='aes-128-ctr',
         )
     )
-
-    @classmethod
-    def encrypt(cls, *, secret: bytes, password: str, kdf_salt: Optional[bytes]=None, aes_iv: Optional[bytes]=None):
-        keystore = cls()
-        keystore.crypto.kdf.params['salt'] = randbits(256).to_bytes(32, 'big') if kdf_salt is None else kdf_salt
-        decryption_key = scrypt(password=password, **keystore.crypto.kdf.params)
-        keystore.crypto.cipher.params['iv'] = randbits(128).to_bytes(16, 'big') if aes_iv is None else aes_iv
-        cipher = AES_128_CTR(key=decryption_key[:16], **keystore.crypto.cipher.params)
-        keystore.crypto.cipher.message = cipher.encrypt(secret)
-        keystore.crypto.checksum.message = SHA256(decryption_key[16:32] + keystore.crypto.cipher.message)
-        return keystore
-
-    def decrypt(self, password: str) -> bytes:
-        decryption_key = scrypt(password=password, **self.crypto.kdf.params)
-        assert SHA256(decryption_key[16:32] + self.crypto.cipher.message) == self.crypto.checksum.message
-        cipher = AES_128_CTR(key=decryption_key[:16], **self.crypto.cipher.params)
-        return cipher.decrypt(self.crypto.cipher.message)
