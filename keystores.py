@@ -63,7 +63,7 @@ class KeystoreCrypto(BytesDataclass):
 class Keystore(BytesDataclass):
     crypto: KeystoreCrypto = KeystoreCrypto()
     id: str = str(uuid())  # Generate a new uuid
-    version: int = 0
+    version: int = 4
 
     def kdf(self, **kwargs):
         return scrypt(**kwargs) if 'scrypt' in self.crypto.kdf.function else PBKDF2(**kwargs)

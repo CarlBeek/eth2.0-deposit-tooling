@@ -36,7 +36,7 @@ test_vector_keystores_json = [
             }
         },
         "id": "64625def-3331-4eea-ab6f-782f3ed16a83",
-        "version": 0
+        "version": 4
     }''',
     '''
     {
@@ -66,7 +66,7 @@ test_vector_keystores_json = [
             }
         },
         "id": "1d85ae20-35c5-4611-98e8-aa14a633906f",
-        "version": 0
+        "version": 4
     }''']
 test_vector_keystores = [Keystore.from_json(x) for x in test_vector_keystores_json]
 
