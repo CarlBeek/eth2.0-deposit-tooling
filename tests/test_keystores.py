@@ -35,7 +35,7 @@ test_vector_keystores_json = [
                 "message": "a9249e0ca7315836356e4c7440361ff22b9fe71e2e2ed34fc1eb03976924ed48"
             }
         },
-        "id": "64625def-3331-4eea-ab6f-782f3ed16a83",
+        "uuid": "64625def-3331-4eea-ab6f-782f3ed16a83",
         "version": 4
     }''',
     '''
@@ -65,7 +65,7 @@ test_vector_keystores_json = [
                 "message": "c986b2963fadbd10c3280c27377173a5857c4e5262c517e4bad2deca2e3ff7c3"
             }
         },
-        "id": "1d85ae20-35c5-4611-98e8-aa14a633906f",
+        "uuid": "1d85ae20-35c5-4611-98e8-aa14a633906f",
         "version": 4
     }''']
 test_vector_keystores = [Keystore.from_json(x) for x in test_vector_keystores_json]

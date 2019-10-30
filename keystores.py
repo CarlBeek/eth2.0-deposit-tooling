@@ -62,7 +62,7 @@ class KeystoreCrypto(BytesDataclass):
 @dataclass
 class Keystore(BytesDataclass):
     crypto: KeystoreCrypto = KeystoreCrypto()
-    id: str = str(uuid())  # Generate a new uuid
+    uuid: str = str(uuid())  # Generate a new uuid
     version: int = 4
 
     def kdf(self, **kwargs):
@@ -72,9 +72,9 @@ class Keystore(BytesDataclass):
     def from_json(cls, json_str: str):
         json_dict = json.loads(json_str)
         crypto = KeystoreCrypto.from_json(json_dict['crypto'])
-        id = json_dict['id']
+        uuid = json_dict['uuid']
         version = json_dict['version']
-        return cls(crypto=crypto, id=id, version=version)
+        return cls(crypto=crypto, uuid=uuid, version=version)
 
     @classmethod
     def encrypt(cls, *, secret: bytes, password: str, kdf_salt: Optional[bytes]=None, aes_iv: Optional[bytes]=None):
