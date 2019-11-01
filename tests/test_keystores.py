@@ -46,8 +46,8 @@ test_vector_keystores_json = [
                 "params": {
                     "dklen": 32,
                     "n": 262144,
-                    "p": 8,
-                    "r": 1,
+                    "p": 1,
+                    "r": 8,
                     "salt": "d4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3"
                 },
                 "message": ""
@@ -55,14 +55,14 @@ test_vector_keystores_json = [
             "checksum": {
                 "function": "sha256",
                 "params": {},
-                "message": "1849171bf8f79c576ddf860e6a3aee875bb82e564b22f8cea2e769235f88e2c0"
+                "message": "149aafa27b041f3523c53d7acba1905fa6b1c90f9fef137568101f44b531a3cb"
             },
             "cipher": {
                 "function": "aes-128-ctr",
                 "params": {
                     "iv": "264daa3f303d7259501c93d997d84fe6"
                 },
-                "message": "c986b2963fadbd10c3280c27377173a5857c4e5262c517e4bad2deca2e3ff7c3"
+                "message": "54ecc8863c0550351eee5720f3be6a5d4a016025aa91cd6436cfec938d6a8d30"
             }
         },
         "uuid": "1d85ae20-35c5-4611-98e8-aa14a633906f",

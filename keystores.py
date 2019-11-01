@@ -122,8 +122,8 @@ class ScryptKeystore(Keystore):
             params={
                 'dklen': 32,
                 'n': 2**18,
-                'r': 1,
-                'p': 8,
+                'r': 8,
+                'p': 1,
             },
         ),
         checksum=KeystoreModule(

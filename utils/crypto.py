@@ -20,6 +20,7 @@ def SHA256(x):
 
 
 def scrypt(*, password: str, salt: str, n: int, r: int, p: int, dklen: int) -> bytes:
+    assert(n < 2**(128 * r / 8))
     res = _scrypt(password=password, salt=salt, key_len=dklen, N=n, r=r, p=p)
     return res if isinstance(res, bytes) else res[0]  # PyCryptodome can return Tuple[bytes]
 
