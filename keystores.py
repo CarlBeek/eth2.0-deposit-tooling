@@ -62,6 +62,7 @@ class KeystoreCrypto(BytesDataclass):
 @dataclass
 class Keystore(BytesDataclass):
     crypto: KeystoreCrypto = KeystoreCrypto()
+    path: str = ''
     uuid: str = str(uuid())  # Generate a new uuid
     version: int = 4
 
@@ -72,12 +73,13 @@ class Keystore(BytesDataclass):
     def from_json(cls, json_str: str):
         json_dict = json.loads(json_str)
         crypto = KeystoreCrypto.from_json(json_dict['crypto'])
+        path = json_dict['path']
         uuid = json_dict['uuid']
         version = json_dict['version']
-        return cls(crypto=crypto, uuid=uuid, version=version)
+        return cls(crypto=crypto, path=path, uuid=uuid, version=version)
 
     @classmethod
-    def encrypt(cls, *, secret: bytes, password: str, kdf_salt: Optional[bytes]=None, aes_iv: Optional[bytes]=None):
+    def encrypt(cls, *, secret: bytes, password: str, path: Optional[str]='', kdf_salt: Optional[bytes]=None, aes_iv: Optional[bytes]=None):
         keystore = cls()
         keystore.crypto.kdf.params['salt'] = randbits(256).to_bytes(32, 'big') if kdf_salt is None else kdf_salt
         decryption_key = keystore.kdf(password=password, **keystore.crypto.kdf.params)
@@ -85,6 +87,7 @@ class Keystore(BytesDataclass):
         cipher = AES_128_CTR(key=decryption_key[:16], **keystore.crypto.cipher.params)
         keystore.crypto.cipher.message = cipher.encrypt(secret)
         keystore.crypto.checksum.message = SHA256(decryption_key[16:32] + keystore.crypto.cipher.message)
+        keystore.path = path
         return keystore
 
     def decrypt(self, password: str) -> bytes:

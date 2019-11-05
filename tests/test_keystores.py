@@ -35,6 +35,7 @@ test_vector_keystores_json = [
                 "message": "a9249e0ca7315836356e4c7440361ff22b9fe71e2e2ed34fc1eb03976924ed48"
             }
         },
+        "path": "m/12381/60/3141592653589793238/4626433832795028841",
         "uuid": "64625def-3331-4eea-ab6f-782f3ed16a83",
         "version": 4
     }''',
@@ -65,6 +66,7 @@ test_vector_keystores_json = [
                 "message": "54ecc8863c0550351eee5720f3be6a5d4a016025aa91cd6436cfec938d6a8d30"
             }
         },
+        "path": "m/12381/60/0/0",
         "uuid": "1d85ae20-35c5-4611-98e8-aa14a633906f",
         "version": 4
     }''']
