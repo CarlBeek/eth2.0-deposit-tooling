@@ -6,8 +6,7 @@ from dataclasses import (
 )
 import json
 from secrets import randbits
-from uuid import uuid4 as uuid
-from typing import Optional
+from uuid import uuid4
 from utils.crypto import (
     AES_128_CTR,
     PBKDF2,
@@ -63,7 +62,7 @@ class KeystoreCrypto(BytesDataclass):
 class Keystore(BytesDataclass):
     crypto: KeystoreCrypto = KeystoreCrypto()
     path: str = ''
-    uuid: str = str(uuid())  # Generate a new uuid
+    uuid: str = str(uuid4())  # Generate a new uuid
     version: int = 4
 
     def kdf(self, **kwargs):
@@ -84,7 +83,7 @@ class Keystore(BytesDataclass):
                 kdf_salt: bytes=randbits(256).to_bytes(32, 'big'),
                 aes_iv: bytes=randbits(128).to_bytes(16, 'big')):
         keystore = cls()
-        keystore.crypto.kdf.params['salt'] =  kdf_salt
+        keystore.crypto.kdf.params['salt'] = kdf_salt
         decryption_key = keystore.kdf(password=password, **keystore.crypto.kdf.params)
         keystore.crypto.cipher.params['iv'] = aes_iv
         cipher = AES_128_CTR(key=decryption_key[:16], **keystore.crypto.cipher.params)

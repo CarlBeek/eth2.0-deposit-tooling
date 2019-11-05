@@ -10,9 +10,6 @@ from Crypto.Protocol.KDF import (
 from Crypto.Cipher import (
     AES as _AES
 )
-from Crypto.Util import (
-    Counter,
-)
 
 
 def SHA256(x):
