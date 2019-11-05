@@ -67,6 +67,7 @@ class Keystore(BytesDataclass):
     version: int = 4
 
     def kdf(self, **kwargs):
+        print(kwargs)
         return scrypt(**kwargs) if 'scrypt' in self.crypto.kdf.function else PBKDF2(**kwargs)
 
     @classmethod
@@ -79,11 +80,13 @@ class Keystore(BytesDataclass):
         return cls(crypto=crypto, path=path, uuid=uuid, version=version)
 
     @classmethod
-    def encrypt(cls, *, secret: bytes, password: str, path: Optional[str]='', kdf_salt: Optional[bytes]=None, aes_iv: Optional[bytes]=None):
+    def encrypt(cls, *, secret: bytes, password: str, path: str='',
+                kdf_salt: bytes=randbits(256).to_bytes(32, 'big'),
+                aes_iv: bytes=randbits(128).to_bytes(16, 'big')):
         keystore = cls()
-        keystore.crypto.kdf.params['salt'] = randbits(256).to_bytes(32, 'big') if kdf_salt is None else kdf_salt
+        keystore.crypto.kdf.params['salt'] =  kdf_salt
         decryption_key = keystore.kdf(password=password, **keystore.crypto.kdf.params)
-        keystore.crypto.cipher.params['iv'] = randbits(128).to_bytes(16, 'big') if aes_iv is None else aes_iv
+        keystore.crypto.cipher.params['iv'] = aes_iv
         cipher = AES_128_CTR(key=decryption_key[:16], **keystore.crypto.cipher.params)
         keystore.crypto.cipher.message = cipher.encrypt(secret)
         keystore.crypto.checksum.message = SHA256(decryption_key[16:32] + keystore.crypto.cipher.message)
