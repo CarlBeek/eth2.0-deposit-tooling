@@ -13,6 +13,7 @@ from utils.crypto import (
     scrypt,
     SHA256,
 )
+from py_ecc.bls import privtopub
 
 hexdigits = set('0123456789abcdef')
 
@@ -61,22 +62,23 @@ class KeystoreCrypto(BytesDataclass):
 @dataclass
 class Keystore(BytesDataclass):
     crypto: KeystoreCrypto = KeystoreCrypto()
+    pubkey: str = ''
     path: str = ''
     uuid: str = str(uuid4())  # Generate a new uuid
     version: int = 4
 
     def kdf(self, **kwargs):
-        print(kwargs)
         return scrypt(**kwargs) if 'scrypt' in self.crypto.kdf.function else PBKDF2(**kwargs)
 
     @classmethod
     def from_json(cls, json_str: str):
         json_dict = json.loads(json_str)
         crypto = KeystoreCrypto.from_json(json_dict['crypto'])
+        pubkey = json_dict['pubkey']
         path = json_dict['path']
         uuid = json_dict['uuid']
         version = json_dict['version']
-        return cls(crypto=crypto, path=path, uuid=uuid, version=version)
+        return cls(crypto=crypto, pubkey=pubkey, path=path, uuid=uuid, version=version)
 
     @classmethod
     def encrypt(cls, *, secret: bytes, password: str, path: str='',
@@ -89,6 +91,7 @@ class Keystore(BytesDataclass):
         cipher = AES_128_CTR(key=decryption_key[:16], **keystore.crypto.cipher.params)
         keystore.crypto.cipher.message = cipher.encrypt(secret)
         keystore.crypto.checksum.message = SHA256(decryption_key[16:32] + keystore.crypto.cipher.message)
+        keystore.pubkey = privtopub(int.from_bytes(secret, 'big')).hex()
         keystore.path = path
         return keystore
 
