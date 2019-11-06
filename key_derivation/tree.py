@@ -39,4 +39,5 @@ def derive_child_SK(*, parent_SK: int, index: int) -> int:
 
 
 def derive_master_SK(seed: bytes) -> int:
+    assert(len(seed) >= 16)
     return HKDF_mod_r(IKM=seed)
