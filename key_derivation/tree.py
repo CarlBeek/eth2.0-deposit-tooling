@@ -17,7 +17,7 @@ def IKM_to_lamport_SK(*, IKM: bytes, salt: bytes) -> List[bytes]:
 
 
 def parent_SK_to_lamport_PK(*, parent_SK: int, index: int) -> bytes:
-    salt = index.to_bytes(32, byteorder='big')
+    salt = index.to_bytes(8, byteorder='big')
     IKM = parent_SK.to_bytes(32, byteorder='big')
     lamport_0 = IKM_to_lamport_SK(IKM=IKM, salt=salt)
     not_IKM = flip_bits(parent_SK).to_bytes(32, byteorder='big')
