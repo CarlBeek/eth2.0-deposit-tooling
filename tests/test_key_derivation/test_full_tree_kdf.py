@@ -18,7 +18,7 @@ def test_flip_bits():
 def test_IKM_to_lamport_SK():
     test_vector_lamport_0 = [bytes.fromhex(x) for x in test_vector['lamport_0']]
     test_vector_lamport_1 = [bytes.fromhex(x) for x in test_vector['lamport_1']]
-    salt = int(0).to_bytes(32, 'big')
+    salt = test_vector['child_index'].to_bytes(4, 'big')
     IKM = test_vector['master_SK'].to_bytes(32, 'big')
     lamport_0 = IKM_to_lamport_SK(IKM=IKM, salt=salt)
     not_IKM = flip_bits(test_vector['master_SK']).to_bytes(32, 'big')
