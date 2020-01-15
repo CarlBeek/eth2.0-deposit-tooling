@@ -1,9 +1,9 @@
-from py_ecc.bls12_381.bls12_381_curve import curve_order as _curve_order
-from py_ecc.bls.api import (
-    privtopub as _priv_to_pub,
-    verify as _verify,
-    sign as _sign,
+from py_ecc.bls import G2ProofOfPossession as _bls
+from ssz import (
+    ByteVector,
+    Serializable,
 )
+
 from utils.typing import (
     BLSPubkey,
     BLSPrivkey,
@@ -11,32 +11,39 @@ from utils.typing import (
     Domain,
     DomainType,
     Version,
+    Root,
 )
 from utils.constants import (
     DOMAIN_DEPOSIT,
+    GENESIS_FORK_VERSION,
 )
 
 
-def get_domain(domain_type: DomainType=DomainType(DOMAIN_DEPOSIT), fork_version: Version=Version(bytes(4))) -> Domain:
+class SigningRoot(Serializable):
+    fields = [
+        ('object_root', ByteVector(32)),
+        ('domain', ByteVector(8))
+    ]
+
+
+def compute_domain(domain_type: DomainType=DomainType(DOMAIN_DEPOSIT), fork_version: Version=GENESIS_FORK_VERSION) -> Domain:
     """
-    Return the domain for a given fork
+    Return the domain for the ``domain_type`` and ``fork_version``.
     """
-    assert len(domain_type) == 4
-    assert len(fork_version) == 4
     return Domain(domain_type + fork_version)
 
 
-def bls_verify(pubkey: BLSPubkey, message_hash: bytes, signature: BLSSignature, domain: Domain) -> bool:
-    return _verify(message_hash=message_hash, pubkey=pubkey,
-                   signature=signature, domain=domain)
+def compute_signing_root(ssz_object, domain: Domain) -> Root:
+    """
+    Return the signing root of an object by calculating the root of the object-domain tree.
+    """
+    domain_wrapped_object = SigningRoot.create(
+        object_root=ssz_object.get_hash_tree_root(),
+        domain=domain,
+    )
+    return domain_wrapped_object.get_hash_tree_root()
 
 
-def bls_sign(message_hash: bytes, privkey: int, domain: Domain) -> BLSSignature:
-    return BLSSignature(_sign(message_hash=message_hash, privkey=privkey, domain=domain))
-
-
-def bls_priv_to_pub(privkey: BLSPrivkey) -> BLSPubkey:
-    return BLSPubkey(_priv_to_pub(privkey))
-
-
-bls_curve_order = _curve_order
+bls_verify = _bls.Verify
+bls_sign = _bls.Sign
+bls_priv_to_pub = _bls.PrivToPub

@@ -13,7 +13,7 @@ from utils.crypto import (
     scrypt,
     SHA256,
 )
-from py_ecc.bls import privtopub
+from py_ecc.bls import G2ProofOfPossession as bls
 
 hexdigits = set('0123456789abcdef')
 
@@ -70,6 +70,18 @@ class Keystore(BytesDataclass):
     def kdf(self, **kwargs):
         return scrypt(**kwargs) if 'scrypt' in self.crypto.kdf.function else PBKDF2(**kwargs)
 
+
+    def save(self, file: str):
+        with open(file, 'w') as f:
+            f.write(self.as_json())
+
+
+    @classmethod
+    def open(cls, file: str):
+        with open(file, 'r') as f:
+            return cls.from_json(f.read())
+
+
     @classmethod
     def from_json(cls, json_str: str):
         json_dict = json.loads(json_str)
@@ -91,7 +103,7 @@ class Keystore(BytesDataclass):
         cipher = AES_128_CTR(key=decryption_key[:16], **keystore.crypto.cipher.params)
         keystore.crypto.cipher.message = cipher.encrypt(secret)
         keystore.crypto.checksum.message = SHA256(decryption_key[16:32] + keystore.crypto.cipher.message)
-        keystore.pubkey = privtopub(int.from_bytes(secret, 'big')).hex()
+        keystore.pubkey = bls.PrivToPub(int.from_bytes(secret, 'big')).hex()
         keystore.path = path
         return keystore
 

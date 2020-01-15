@@ -1,35 +1,119 @@
 from argparse import ArgumentParser
-from key_derivation.bip39 import (
-    get_mnemonic,
-    get_seed,
+from typing import (
+    Tuple,
+    List,
+    Union,
+    Dict,
 )
-from key_derivation.bip32 import derive_master_privkey
+from ssz import (
+    Serializable,
+    SignedSerializable,
+    bytes32,
+    bytes48,
+    bytes96,
+    uint64,
+)
+import json
+
+from key_derivation.mnemonic import get_mnemonic
+from key_derivation.tree import derive_child_SK
+from key_derivation.path import mnemonic_and_path_to_key
+from keystores import ScryptKeystore
+from utils.bls import (
+    bls_sign,
+    bls_priv_to_pub,
+)
+from utils.crypto import SHA256
 
 
 def get_args():
     parser = ArgumentParser(description='🦄 : the validator deposit assistant')
-    parser.add_argument('--withdraw_pwd', type=str, required=True, help='Eth2 withdrawal keystores password')
-    parser.add_argument('--signing_pwd', type=str, help='Eth2 signing keystores password (Default is to reuse `withdraw_pwd`)')  # noqa: E501
-    parser.add_argument('--seed_pwd', type=str, default='', help='Password for additional seed-phrase security. (Default is None)')  # noqa: E501
     parser.add_argument('--num_validators', type=int, required=True, help='Number of Eth2 validator instances to create. (Each requires a 32 Eth deposit)')  # noqa: E501
+    parser.add_argument('--mnemonic_pwd', default='', type=str, help='Add an additional security to your mnemonic by using a password. (Not reccomended)')  # noqa: E501
+    parser.add_argument('--save_withdrawal_keys', action='store_true', help='Saves withdrawal keys as keystores')  # noqa: E501
+
     args = parser.parse_args()
-    args.signing_pwd = args.withdraw_pwd if args.signing_pwd is None else args.signing_pwd
     return args
 
 
-def generate_bls_credentials(args):
+def generate_mnemonic() -> str:
     mnemonic = get_mnemonic()
-    print('Below is your seed phrase. Write it down and store it in a safe place. It is the ultimate backup of all your Eth2.0 Eth and signing keys')  # noqa: E501
+    print('Below is your seed phrase. Write it down and store it in a safe place. It is the ONLY way to withdraw your funds.')  # noqa: E501
     print('\n\n\n\n%s\n\n\n\n' % mnemonic)
-    input("Press Enter to continue...")
-    seed = get_seed(mnemonic=mnemonic, password=args.seed_pwd)
-    master_privkey, master_chaincode = derive_master_privkey(seed)
-    print(master_privkey)
+    input("Press Enter when you have written down your mnemonic.")
+    return mnemonic
+
+
+def calculate_credentials(mnemonic: str, password: str, num_validators: int) -> List[Dict[str, Union[int, str]]]:
+    withdrawal_paths = ['m/12381/3600/%s/0' % i for i in range(num_validators)]
+    credentials = [{
+        'withdrawal_path': 'm/12381/3600/%s/0' % i,
+        'withdrawal_sk': mnemonic_and_path_to_key(mnemonic, password, 'm/12381/3600/%s/0' % i),
+        'signing_path': 'm/12381/3600/%s/0/0' % i,
+        'signing_sk': mnemonic_and_path_to_key(mnemonic, password, 'm/12381/3600/%s/0/0' % i),
+        'amount': 32 * 10**9,
+    } for i in range(num_validators)]
+    return credentials
+
+
+def save_keystores(credentials: List[Dict[str, Union[int, str]]], folder: str='./', save_withdrawal_keys: bool=False):
+    def save_credentials(cred_type: 'str'):
+        password = input('Enter the password that secures your %s keys.' % cred_type)
+        confirm_password = input('Type your password again to confirm.')
+        while password != confirm_password:
+            print("\n Your passwords didn't match, please try again.\n")
+            password = input('Enter the password that secures your %s keys.' % cred_type)
+            confirm_password = input('Type your password again to confirm.')
+        for credential in credentials:
+            keystore = ScryptKeystore.encrypt(secret=int(credential['%s_sk' % cred_type]).to_bytes(32, 'big'),
+                                              password=password, path=str(credential['%s_path' % cred_type]))
+            keystore.save(folder + '%s-keystore-%s.json' % (cred_type, keystore.path.replace('/', '_')))
+    
+    save_credentials('signing')
+    if save_withdrawal_keys:
+        save_credentials('withdrawal')
+
+
+class DepositMessage(Serializable):
+    fields = [
+        ('pubkey', bytes48),
+        ('withdrawal_credentials', bytes32),
+        ('amount', uint64),
+    ]
+
+class DepositData(Serializable):
+    fields = [
+        ('pubkey', bytes48),
+        ('withdrawal_credentials', bytes32),
+        ('amount', uint64),
+        ('signature', bytes96)
+    ]
+
+
+def save_deposit_data(credentials: List[Dict[str, Union[int, str]]], file:str='./deposit_data.json'):
+    deposit_data = list()
+    for credential in credentials:
+        deposit_message = DepositMessage(
+            pubkey=bls_priv_to_pub(int(credential['signing_sk'])),
+            withdrawal_credentials=SHA256(bls_priv_to_pub(int(credential['withdrawal_sk']))),
+            amount=credential['amount'],
+        )
+    
+        deposit_data.append(DepositData(
+            **deposit_message.as_dict(),
+            signature=bls_sign(int(credential['signing_sk']), deposit_message.hash_tree_root),
+        ).as_dict())
+    with open(file, 'w') as f:
+        json.dump(deposit_data, f, default=lambda x: x.hex())
 
 
 def main():
     args = get_args()
-    generate_bls_credentials(args)
+    mnemonic = generate_mnemonic()
+    credentials = calculate_credentials(mnemonic, args.mnemonic_pwd, args.num_validators)
+    save_keystores(credentials, save_withdrawal_keys=args.save_withdrawal_keys)
+    save_deposit_data(credentials)
+
 
 
 if __name__ == '__main__':

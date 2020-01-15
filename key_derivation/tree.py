@@ -2,7 +2,7 @@ from utils.crypto import (
     HKDF,
     SHA256,
 )
-from utils.bls import bls_curve_order
+from py_ecc.optimized_bls12_381 import curve_order as bls_curve_order
 from typing import List
 
 
