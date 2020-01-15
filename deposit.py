@@ -24,7 +24,7 @@ from utils.bls import (
     bls_priv_to_pub,
 )
 from utils.crypto import SHA256
-
+import getpass
 
 def get_args():
     parser = ArgumentParser(description='🦄 : the validator deposit assistant')
@@ -58,12 +58,12 @@ def calculate_credentials(mnemonic: str, password: str, num_validators: int) -> 
 
 def save_keystores(credentials: List[Dict[str, Union[int, str]]], folder: str='./', save_withdrawal_keys: bool=False):
     def save_credentials(cred_type: 'str'):
-        password = input('Enter the password that secures your %s keys.' % cred_type)
-        confirm_password = input('Type your password again to confirm.')
+        password = getpass.getpass(prompt='Enter the password that secures your %s keys.' % cred_type)
+        confirm_password = getpass.getpass(prompt='Type your password again to confirm.')
         while password != confirm_password:
             print("\n Your passwords didn't match, please try again.\n")
-            password = input('Enter the password that secures your %s keys.' % cred_type)
-            confirm_password = input('Type your password again to confirm.')
+            password = getpass.getpass(prompt='Enter the password that secures your %s keys.' % cred_type)
+            confirm_password = getpass.getpass(prompt='Type your password again to confirm.')
         for credential in credentials:
             keystore = ScryptKeystore.encrypt(secret=int(credential['%s_sk' % cred_type]).to_bytes(32, 'big'),
                                               password=password, path=str(credential['%s_path' % cred_type]))
