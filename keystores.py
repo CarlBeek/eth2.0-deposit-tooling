@@ -70,17 +70,14 @@ class Keystore(BytesDataclass):
     def kdf(self, **kwargs):
         return scrypt(**kwargs) if 'scrypt' in self.crypto.kdf.function else PBKDF2(**kwargs)
 
-
     def save(self, file: str):
         with open(file, 'w') as f:
             f.write(self.as_json())
-
 
     @classmethod
     def open(cls, file: str):
         with open(file, 'r') as f:
             return cls.from_json(f.read())
-
 
     @classmethod
     def from_json(cls, json_str: str):

@@ -1,13 +1,11 @@
 from argparse import ArgumentParser
 from typing import (
-    Tuple,
     List,
     Union,
     Dict,
 )
 from ssz import (
     Serializable,
-    SignedSerializable,
     bytes32,
     bytes48,
     bytes96,
@@ -16,7 +14,6 @@ from ssz import (
 import json
 
 from key_derivation.mnemonic import get_mnemonic
-from key_derivation.tree import derive_child_SK
 from key_derivation.path import mnemonic_and_path_to_key
 from keystores import ScryptKeystore
 from utils.bls import (
@@ -45,7 +42,6 @@ def generate_mnemonic() -> str:
 
 
 def calculate_credentials(mnemonic: str, password: str, num_validators: int) -> List[Dict[str, Union[int, str]]]:
-    withdrawal_paths = ['m/12381/3600/%s/0' % i for i in range(num_validators)]
     credentials = [{
         'withdrawal_path': 'm/12381/3600/%s/0' % i,
         'withdrawal_sk': mnemonic_and_path_to_key(mnemonic, password, 'm/12381/3600/%s/0' % i),
@@ -68,7 +64,7 @@ def save_keystores(credentials: List[Dict[str, Union[int, str]]], folder: str='.
             keystore = ScryptKeystore.encrypt(secret=int(credential['%s_sk' % cred_type]).to_bytes(32, 'big'),
                                               password=password, path=str(credential['%s_path' % cred_type]))
             keystore.save(folder + '%s-keystore-%s.json' % (cred_type, keystore.path.replace('/', '_')))
-    
+
     save_credentials('signing')
     if save_withdrawal_keys:
         save_credentials('withdrawal')
@@ -81,6 +77,7 @@ class DepositMessage(Serializable):
         ('amount', uint64),
     ]
 
+
 class DepositData(Serializable):
     fields = [
         ('pubkey', bytes48),
@@ -90,7 +87,7 @@ class DepositData(Serializable):
     ]
 
 
-def save_deposit_data(credentials: List[Dict[str, Union[int, str]]], file:str='./deposit_data.json'):
+def save_deposit_data(credentials: List[Dict[str, Union[int, str]]], file: str='./deposit_data.json'):
     deposit_data = list()
     for credential in credentials:
         deposit_message = DepositMessage(
@@ -98,7 +95,7 @@ def save_deposit_data(credentials: List[Dict[str, Union[int, str]]], file:str='.
             withdrawal_credentials=SHA256(bls_priv_to_pub(int(credential['withdrawal_sk']))),
             amount=credential['amount'],
         )
-    
+
         deposit_data.append(DepositData(
             **deposit_message.as_dict(),
             signature=bls_sign(int(credential['signing_sk']), deposit_message.hash_tree_root),
@@ -113,7 +110,6 @@ def main():
     credentials = calculate_credentials(mnemonic, args.mnemonic_pwd, args.num_validators)
     save_keystores(credentials, save_withdrawal_keys=args.save_withdrawal_keys)
     save_deposit_data(credentials)
-
 
 
 if __name__ == '__main__':

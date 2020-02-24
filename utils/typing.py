@@ -1,8 +1,4 @@
-from typing import (
-    NewType,
-    Dict,
-    Union,
-)
+from typing import NewType
 
 # ####  Eth2.0 Types  ####
 BLSPubkey = NewType('BLSPubkey', bytes)

@@ -5,9 +5,6 @@ from ssz import (
 )
 
 from utils.typing import (
-    BLSPubkey,
-    BLSPrivkey,
-    BLSSignature,
     Domain,
     DomainType,
     Version,
@@ -26,7 +23,8 @@ class SigningRoot(Serializable):
     ]
 
 
-def compute_domain(domain_type: DomainType=DomainType(DOMAIN_DEPOSIT), fork_version: Version=GENESIS_FORK_VERSION) -> Domain:
+def compute_domain(domain_type: DomainType=DomainType(DOMAIN_DEPOSIT),
+                   fork_version: Version=GENESIS_FORK_VERSION) -> Domain:
     """
     Return the domain for the ``domain_type`` and ``fork_version``.
     """
