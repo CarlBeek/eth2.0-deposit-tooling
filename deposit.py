@@ -96,15 +96,13 @@ def save_deposit_data(credentials: List[Dict[str, Union[int, str]]], file: str='
             amount=credential['amount'],
         )
 
-        deposit_root = deposit_message.hash_tree_root
-
         deposit = DepositData(
             **deposit_message.as_dict(),
-            signature=bls_sign(int(credential['signing_sk']), deposit_root),
+            signature=bls_sign(int(credential['signing_sk']), deposit_message.hash_tree_root),
         )
         
         deposit_data_dict = deposit.as_dict()
-        deposit_data_dict.update({'deposit_data_root':deposit_root})
+        deposit_data_dict.update({'deposit_data_root':deposit.hash_tree_root})
 
         deposit_data.append(deposit_data_dict)
     with open(file, 'w') as f:
